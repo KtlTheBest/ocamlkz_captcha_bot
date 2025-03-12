@@ -1,0 +1,4 @@
+(library
+ (name ocamlkz_captcha_bot)
+ (preprocess (pps ppx_deriving.show))
+ (libraries cohttp-lwt-unix batteries yojson))
