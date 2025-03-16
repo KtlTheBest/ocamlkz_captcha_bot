@@ -1,3 +1,17 @@
+open BatInt64
+
+let to_int64 (j : Yojson.Safe.t) : int64 =
+  match j with
+  | `Int i -> of_int i
+  | `Intlit s -> of_string s
+  | _ -> failwith @@ Printf.sprintf "Failed to convert to int64: %s" (Yojson.Safe.show j)
+
+let to_int64_option (j : Yojson.Safe.t) : int64 option =
+  match j with
+  | `Int i -> Some (of_int i)
+  | `Intlit s -> Some (of_string s)
+  | _ -> None
+
 type chat_type =
   | Private
   | Group
@@ -6,7 +20,7 @@ type chat_type =
 [@@deriving show]
 
 type user = {
-  id: int;
+  id: int64;
   is_bot: bool;
   first_name: string;
   last_name: string option;
@@ -17,7 +31,7 @@ type user = {
 [@@deriving show]
 
 type chat = {
-  id : int;
+  id : int64;
   _type: chat_type;
   title: string option;
   username: string option;
@@ -185,7 +199,7 @@ type animation = {
   thumbnail: photosize option;
   file_name: string option;
   mime_type: string option;
-  file_size: int option;
+  file_size: int64 option;
 }
 [@@deriving show]
 
@@ -197,7 +211,7 @@ type audio = {
   title: string option;
   file_name: string option;
   mime_type: string option;
-  file_size: int option;
+  file_size: int64 option;
   thumbnail: photosize option;
 }
 [@@deriving show]
@@ -208,7 +222,7 @@ type document = {
   thumbnail: photosize option;
   file_name: string option;
   mime_type: string option;
-  file_size: int option;
+  file_size: int64 option;
 }
 [@@deriving show]
 
@@ -221,7 +235,7 @@ type sticker_type =
 type file = {
   file_id: string;
   file_unique_id: string;
-  file_size: int option; (* supposed to be int64, but no to_int64 in yojson *)
+  file_size: int64 option;
   file_path: string option;
 }
 [@@deriving show]
@@ -268,7 +282,7 @@ type video = {
   thumbnail: photosize option;
   file_name: string option;
   mime_type: string option;
-  file_size: int option;
+  file_size: int64 option;
 }
 [@@deriving show]
 
@@ -287,7 +301,7 @@ type voice = {
   file_unique_id: string;
   duration: int;
   mime_type: string option;
-  file_size: int option;
+  file_size: int64 option;
 }
 [@@deriving show]
 
@@ -295,7 +309,7 @@ type contact = {
   phone_number: string;
   first_name: string;
   last_name: string option;
-  user_id: int option;
+  user_id: int64 option;
   vcard: string option;
 }
 [@@deriving show]
@@ -506,7 +520,7 @@ type inaccessible_message = {
 [@@deriving show]
 
 type shared_user = {
-  user_id: int;
+  user_id: int64;
   first_name: string option;
   last_name: string option;
   username: string option;
@@ -522,7 +536,7 @@ type users_shared = {
 
 type chat_shared = {
   request_id: int;
-  chat_id: int;
+  chat_id: int64;
   title: string option;
   username: string option;
   photo: photosize list;
@@ -784,8 +798,8 @@ and message = {
   supergroup_chat_created: bool;
   channel_chat_created: bool;
   message_auto_delete_timer_changed: message_auto_delete_timer_changed option;
-  migrate_to_chat_id: int option;
-  migrate_from_chat_id: int option;
+  migrate_to_chat_id: int64 option;
+  migrate_from_chat_id: int64 option;
   pinned_message: maybe_inaccessible_message option;
   users_shared: users_shared option;
   chat_shared: chat_shared option;
@@ -833,7 +847,7 @@ type refined_update =
 type business_connection = {
   id: string;
   user: user;
-  user_chat_id: int;
+  user_chat_id: int64;
   date: int;
   can_reply: bool;
   is_enabled: bool;
@@ -994,7 +1008,7 @@ type chat_invite_link = {
 type chat_join_request = {
   chat: chat;
   from: user;
-  user_chat_id: int;
+  user_chat_id: int64;
   date: int;
   bio: string option;
   invite_link: chat_invite_link option;
@@ -1072,7 +1086,7 @@ type update = {
 
 (*
 let to_user_option j : user option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -1091,7 +1105,7 @@ let to_user_option j : user option =
 *)
 
 type target_chat =
-  | Chat of int
+  | Chat of int64
   | Channel of string
 [@@deriving show]
 
@@ -1220,8 +1234,15 @@ type send_message_type = {
 }
 [@@deriving show]
 
+type delete_message_type = {
+  chat_id : target_chat;
+  message_id: int;
+}
+[@@deriving show]
+
 type successful_result_type =
   | Message of message
+  | True
 [@@deriving show]
 
 type return_type = {
@@ -1231,7 +1252,7 @@ type return_type = {
 }
 [@@deriving show]
 
-let assoc_to_json l =
+let assoc_to_json l : Yojson.Safe.t =
   let l' = List.fold_left (@) [] l in
   `Assoc l'
 
@@ -1264,7 +1285,7 @@ let message_entity_type_to_yojson = function
   | CustomEmoji -> `String "custom_emoji"
 
 let user_to_yojson (u : user) =
-  let id = [("id", `Int u.id)] in
+  let id = [("id", `Intlit (BatInt64.to_string u.id))] in
   let is_bot = [("is_bot", `Bool u.is_bot)] in
   let first_name = [("first_name", `String u.first_name)] in
   let last_name =
@@ -1340,14 +1361,14 @@ let link_preview_options_to_yojson lpo =
   in
   assoc_to_json [is_disabled; url; prefer_small_media; prefer_large_media; show_above_text]
 
-let reply_parameters_to_yojson rp =
+let reply_parameters_to_yojson (rp : reply_parameters) =
   let message_id = [("message_id", `Int rp.message_id)] in
   let chat_id =
     match rp.chat_id with
     | None -> []
     | Some(ci) ->
       (match ci with
-      | Chat(i) -> [("chat_id", `Int i)]
+      | Chat(i) -> [("chat_id", `Intlit (BatInt64.to_string i))]
       | Channel(c) -> [("chat_id", `String c)])
   in
   let allow_sending_without_reply =
@@ -1779,10 +1800,10 @@ let reply_markup_to_yojson rmk =
   | ReplyKeyboardRemove(rkr) -> reply_keyboard_remove_to_yojson rkr
   | ForceReply(fr) -> force_reply_to_yojson fr
 
-let send_message_request_to_yojson sm =
+let send_message_request_to_yojson (sm : send_message_type) : Yojson.Safe.t =
   let chat_id =
     match sm.chat_id with
-    | Chat(i) -> [("chat_id", `Int i)]
+    | Chat(i) -> [("chat_id", `Intlit (BatInt64.to_string i))]
     | Channel(s) -> [("chat_id", `String s)]
   in
   let text = [("text", `String sm.text)] in
@@ -1856,8 +1877,20 @@ let send_message_request_to_yojson sm =
     reply_markup_keyboard;
   ]
 
+let delete_message_request_to_yojson (dm : delete_message_type) : Yojson.Safe.t =
+  let chat_id =
+    match dm.chat_id with
+    | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))]
+    | Channel(v) -> [("chat_id", `String v)]
+  in
+  let message_id = [("message_id", `Int dm.message_id)] in
+  assoc_to_json [
+    chat_id;
+    message_id;
+  ]
+
 let to_user_option j : user option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false 
@@ -1865,7 +1898,7 @@ let to_user_option j : user option =
   match j with
   | `Null -> None
   | _ ->
-  let id = j |> member "id" |> to_int in
+  let id = j |> member "id" |> to_int64 in
   let is_bot = j |> member "is_bot" |> to_bool_option |> default false in
   let first_name = j |> member "first_name" |> to_string in
   let last_name = j |> member "last_name" |> to_string_option in
@@ -1887,7 +1920,7 @@ let to_user j =
   j |> to_user_option |> get
 
 let to_user_list j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   match j with
   | `Null -> []
@@ -1900,7 +1933,7 @@ let to_user_list j =
   | _ -> failwith "to_user_list: do not know what to do"
 
 let to_chat_option j : chat option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -1908,7 +1941,7 @@ let to_chat_option j : chat option =
   match j with
   | `Null -> None
   | _ ->
-    let id = j |> member "id" |> to_int in
+    let id = j |> member "id" |> to_int64 in
     let _type = 
       match j |> member "type" |> to_string with
       | "private" -> Private
@@ -1936,8 +1969,8 @@ let to_chat j =
   let open BatOption in
   get (to_chat_option j)
 
-let to_chat_list (j : Yojson.Basic.t) : chat list =
-  let open Yojson.Basic.Util in
+let to_chat_list (j : Yojson.Safe.t) : chat list =
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> []
   | `List _ ->
@@ -1947,21 +1980,21 @@ let to_chat_list (j : Yojson.Basic.t) : chat list =
   | _ -> failwith "to_chat_list: do not know what to do"
 
 let to_message_origin_user j : message_origin_user =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = "user" in
   let date = j |> member "date" |> to_int in
   let sender_user = j |> member "sender_user" |> to_user in
   { _type; date; sender_user }
 
 let to_message_origin_hidden_user j : message_origin_hidden_user =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = "hidden_user" in
   let date = j |> member "date" |> to_int in
   let sender_user_name = j |> member "sender_user_name" |> to_string in 
   { _type; date; sender_user_name }
 
 let to_message_origin_chat j : message_origin_chat =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = "chat" in
   let date = j |> member "date" |> to_int in
   let sender_chat = j |> member "chat" |> to_chat in
@@ -1969,7 +2002,7 @@ let to_message_origin_chat j : message_origin_chat =
   { _type; date; sender_chat; author_signature }
 
 let to_message_origin_channel j : message_origin_channel =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = "channel" in
   let date = j |> member "date" |> to_int in
   let chat = j |> member "chat" |> to_chat in
@@ -1978,7 +2011,7 @@ let to_message_origin_channel j : message_origin_channel =
   { _type; date; chat; message_id; author_signature }
 
 let to_message_origin_option j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -1995,7 +2028,7 @@ let to_message_origin j =
   get (to_message_origin_option j)
 
 let to_link_preview_options_option j : link_preview_options option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2011,7 +2044,7 @@ let to_link_preview_options_option j : link_preview_options option =
   Some({ is_disabled; url; prefer_small_media; prefer_large_media; show_above_text })
 
 let to_photosize_option j : photosize option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2027,7 +2060,7 @@ let to_photosize j : photosize =
   get (to_photosize_option j)
 
 let to_animation_option j : animation option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2039,7 +2072,7 @@ let to_animation_option j : animation option =
   let thumbnail = j |> member "thumbnail" |> to_photosize_option in
   let file_name = j |> member "file_name" |> to_string_option in
   let mime_type = j |> member "mime_type" |> to_string_option in
-  let file_size = j |> member "file_size" |> to_int_option in
+  let file_size = j |> member "file_size" |> to_int64_option in
   Some({
     file_id;
     file_unique_id;
@@ -2053,7 +2086,7 @@ let to_animation_option j : animation option =
   })
 
 let to_audio_option j : audio option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2064,7 +2097,7 @@ let to_audio_option j : audio option =
   let title = j |> member "title" |> to_string_option in
   let file_name = j |> member "file_name" |> to_string_option in
   let mime_type = j |> member "mime_type" |> to_string_option in
-  let file_size = j |> member "file_size" |> to_int_option in
+  let file_size = j |> member "file_size" |> to_int64_option in
   let thumbnail = j |> member "thumbnail" |> to_photosize_option in
   Some({
     file_id;
@@ -2079,7 +2112,7 @@ let to_audio_option j : audio option =
   })
 
 let to_document_option j : document option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2088,7 +2121,7 @@ let to_document_option j : document option =
   let thumbnail = j |> member "thumbnail" |> to_photosize_option in
   let file_name = j |> member "file_name" |> to_string_option in
   let mime_type = j |> member "mime_type" |> to_string_option in
-  let file_size = j |> member "file_size" |> to_int_option in
+  let file_size = j |> member "file_size" |> to_int64_option in
   Some({
     file_id;
     file_unique_id;
@@ -2102,8 +2135,8 @@ let to_document j : document =
   let open BatOption in
   get (to_document_option j)
 
-let to_photosize_list (j : Yojson.Basic.t) : photosize list =
-  let open Yojson.Basic.Util in
+let to_photosize_list (j : Yojson.Safe.t) : photosize list =
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> []
   | `List _ ->
@@ -2111,18 +2144,18 @@ let to_photosize_list (j : Yojson.Basic.t) : photosize list =
   | _ -> failwith "to_photosize_list: do not know what to do"
 
 let to_file_option j : file option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
   let file_id = j |> member "file_id" |> to_string in
   let file_unique_id = j |> member "file_unique_id" |> to_string in
-  let file_size = j |> member "file_size" |> to_int_option in
+  let file_size = j |> member "file_size" |> to_int64_option in
   let file_path = j |> member "file_path" |> to_string_option in
   Some({ file_id; file_unique_id; file_size; file_path })
 
 let to_mask_position_option j : mask_position option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2133,7 +2166,7 @@ let to_mask_position_option j : mask_position option =
   Some({ point; x_shift; y_shift; scale })
 
 let to_sticker_option j : sticker option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2181,7 +2214,7 @@ let to_sticker_option j : sticker option =
   })
 
 let to_story_option j : story option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2190,7 +2223,7 @@ let to_story_option j : story option =
   Some({ chat; id })
   
 let to_video_option j : video option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2202,7 +2235,7 @@ let to_video_option j : video option =
   let thumbnail = j |> member "thumbnail" |> to_photosize_option in
   let file_name = j |> member "file_name" |> to_string_option in
   let mime_type = j |> member "mime_type" |> to_string_option in
-  let file_size = j |> member "file_size" |> to_int_option in
+  let file_size = j |> member "file_size" |> to_int64_option in
   Some({
     file_id;
     file_unique_id;
@@ -2220,7 +2253,7 @@ let to_video j =
   get (to_video_option j)
   
 let to_video_note_option j : video_note option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2240,7 +2273,7 @@ let to_video_note_option j : video_note option =
   })
   
 let to_voice_option j : voice option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2248,7 +2281,7 @@ let to_voice_option j : voice option =
   let file_unique_id = j |> member "file_unique_id" |> to_string in
   let duration = j |> member "duration" |> to_int in
   let mime_type = j |> member "mime_type" |> to_string_option in
-  let file_size = j |> member "file_size" |> to_int_option in
+  let file_size = j |> member "file_size" |> to_int64_option in
   Some({
     file_id;
     file_unique_id;
@@ -2258,14 +2291,14 @@ let to_voice_option j : voice option =
   })
   
 let to_contact_option j : contact option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
   let phone_number = j |> member "phone_number" |> to_string in
   let first_name = j |> member "first_name" |> to_string in
   let last_name = j |> member "last_name" |> to_string_option in
-  let user_id = j |> member "user_id" |> to_int_option in
+  let user_id = j |> member "user_id" |> to_int64_option in
   let vcard = j |> member "vcard" |> to_string_option in
   Some({
     phone_number;
@@ -2276,7 +2309,7 @@ let to_contact_option j : contact option =
   })
   
 let to_dice_option j : dice option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2285,7 +2318,7 @@ let to_dice_option j : dice option =
   Some({ emoji; value })
   
 let to_giveaway_option j : giveaway option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2326,7 +2359,7 @@ let to_giveaway_option j : giveaway option =
   })
   
 let to_giveaway_winners_option j : giveaway_winners option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2369,7 +2402,7 @@ let to_giveaway_winners_option j : giveaway_winners option =
   })
 
 let to_location_option j : location option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2389,7 +2422,7 @@ let to_location_option j : location option =
   })
 
 let to_message_entity_option j : message_entity option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2437,7 +2470,7 @@ let to_message_entity j =
   get (to_message_entity_option j)
 
 let to_message_entity_list j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> []
   | `List _ ->
@@ -2447,7 +2480,7 @@ let to_message_entity_list j =
   | _ -> failwith "to_message_entity_list: do not know what to do"
   
 let to_poll_opt_option j : poll_option option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2461,7 +2494,7 @@ let to_poll_opt j =
   get (to_poll_opt_option j)
 
 let to_poll_opt_list j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> []
   | `List _ ->
@@ -2471,7 +2504,7 @@ let to_poll_opt_list j =
   | _ -> failwith "to_poll_opt_list: do not know what to do"
   
 let to_poll_option j : poll option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2512,7 +2545,7 @@ let to_poll_option j : poll option =
   })
   
 let to_external_reply_info_option j : external_reply_info option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2564,7 +2597,7 @@ let to_external_reply_info_option j : external_reply_info option =
   })
 
 let to_text_quote_option j : text_quote option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2584,7 +2617,7 @@ let to_text_quote_option j : text_quote option =
   })
 
 let to_paid_media_preview j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let width = j |> member "width" |> to_int_option in
   let height = j |> member "height" |> to_int_option in
@@ -2592,19 +2625,19 @@ let to_paid_media_preview j =
   { _type; width; height; duration }
 
 let to_paid_media_photo j : paid_media_photo =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let photo = j |> member "photo" |> to_photosize_list in
   { _type; photo }
 
 let to_paid_media_video j : paid_media_video =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let video = j |> member "video" |> to_video in
   { _type; video }
 
 let to_paid_media_option j : paid_media option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with 
   | `Null -> None
   | _ ->
@@ -2620,7 +2653,7 @@ let to_paid_media j =
   get (to_paid_media_option j)
 
 let to_paid_media_info_option j : paid_media_info option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2629,7 +2662,7 @@ let to_paid_media_info_option j : paid_media_info option =
   Some({ star_count; paid_media })
 
 let to_game_option j : game option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2653,7 +2686,7 @@ let to_location j =
   get (to_location_option j)
 
 let to_venue_option j : venue option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2675,7 +2708,7 @@ let to_venue_option j : venue option =
   })
 
 let to_message_auto_delete_timer_changed_option j : message_auto_delete_timer_changed option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2683,18 +2716,18 @@ let to_message_auto_delete_timer_changed_option j : message_auto_delete_timer_ch
   Some({ message_auto_delete_time })
 
 let to_inaccessible_message j : inaccessible_message =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let chat = j |> member "chat" |> to_chat in
   let message_id = j |> member "message_id" |> to_int in
   let date = 0 (* always 0 in case of inaccessible *) in
   { chat; message_id; date }
 
 let to_shared_user_option j : shared_user option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
-  let user_id = j |> member "user_id" |> to_int in
+  let user_id = j |> member "user_id" |> to_int64 in
   let first_name = j |> member "first_name" |> to_string_option in
   let last_name = j |> member "last_name" |> to_string_option in
   let username = j |> member "username" |> to_string_option in
@@ -2708,7 +2741,7 @@ let to_shared_user_option j : shared_user option =
   })
 
 let to_shared_user_list j : shared_user list =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   match j with
   | `Null -> []
@@ -2721,7 +2754,7 @@ let to_shared_user_list j : shared_user list =
   | _ -> failwith "to_shared_user_list: do not know what to do"
 
 let to_users_shared_option j : users_shared option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2730,12 +2763,12 @@ let to_users_shared_option j : users_shared option =
   Some({ request_id; users })
 
 let to_chat_shared_option j : chat_shared option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
   let request_id = j |> member "request_id" |> to_int in
-  let chat_id = j |> member "chat_id" |> to_int in
+  let chat_id = j |> member "chat_id" |> to_int64 in
   let title = j |> member "title" |> to_string_option in
   let username = j |> member "username" |> to_string_option in
   let photo = j |> member "photo" |> to_photosize_list in
@@ -2748,7 +2781,7 @@ let to_chat_shared_option j : chat_shared option =
   })
 
 let to_write_access_allowed_option j : write_access_allowed option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2771,7 +2804,7 @@ let to_passport_data_option j : passport_data option =
   | _ -> Some(PassportData)
 
 let to_proximity_alert_triggered_option j : proximity_alert_triggered option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2785,7 +2818,7 @@ let to_proximity_alert_triggered_option j : proximity_alert_triggered option =
   })
 
 let to_chat_boost_added_option j : chat_boost_added option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2793,13 +2826,13 @@ let to_chat_boost_added_option j : chat_boost_added option =
   Some({ boost_count })
 
 let to_background_fill_solid j : background_fill_solid =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let color = j |> member "color" |> to_int in
   { _type; color }
 
 let to_background_fill_gradient j : background_fill_gradient =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let top_color = j |> member "top_color" |> to_int in
   let bottom_color = j |> member "bottom_color" |> to_int in
@@ -2807,13 +2840,13 @@ let to_background_fill_gradient j : background_fill_gradient =
   { _type; top_color; bottom_color; rotation_angle }
 
 let to_background_fill_freeform_gradient j : background_fill_freeform_gradient =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let colors = j |> member "colors" |> to_list |> List.map to_int in
   { _type; colors }
 
 let to_background_fill j : background_fill =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   match _type with
   | "solid" -> BackgroundFillSolid(to_background_fill_solid j)
@@ -2822,14 +2855,14 @@ let to_background_fill j : background_fill =
   | _ -> failwith @@ Printf.sprintf "Unexpected background fill type: %s" _type
 
 let to_background_type_fill j : background_type_fill =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let fill = j |> member "fill" |> to_background_fill in
   let dark_theme_dimming = j |> member "dark_theme_dimming" |> to_int in
   { _type; fill; dark_theme_dimming }
 
 let to_background_type_wallpaper j : background_type_wallpaper =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2848,7 +2881,7 @@ let to_background_type_wallpaper j : background_type_wallpaper =
   }
 
 let to_background_type_pattern j : background_type_pattern =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -2869,13 +2902,13 @@ let to_background_type_pattern j : background_type_pattern =
   }
 
 let to_background_type_chat_theme j : background_type_chat_theme =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let theme_name = j |> member "theme_name" |> to_string in
   { _type; theme_name }
 
 let to_chat_background_option j : chat_background option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   match j with
   | `Null -> None
@@ -2892,7 +2925,7 @@ let to_chat_background_option j : chat_background option =
   some ({ _type = res } : chat_background)
 
 let to_forum_topic_created_option j : forum_topic_created option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2906,7 +2939,7 @@ let to_forum_topic_created_option j : forum_topic_created option =
   })
 
 let to_forum_topic_edited_option j : forum_topic_edited option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2914,28 +2947,28 @@ let to_forum_topic_edited_option j : forum_topic_edited option =
   let icon_custom_emoji_id = j |> member "icon_custom_emoji_id" |> to_string_option in
   Some({ name; icon_custom_emoji_id })
 
-let to_forum_topic_closed_option (j : Yojson.Basic.t) : forum_topic_closed option =
+let to_forum_topic_closed_option (j : Yojson.Safe.t) : forum_topic_closed option =
   match j with
   | `Null -> None
   | _ -> Some(ForumTopicClosed)
 
-let to_forum_topic_reopened_option (j : Yojson.Basic.t) : forum_topic_reopened option =
+let to_forum_topic_reopened_option (j : Yojson.Safe.t) : forum_topic_reopened option =
   match j with
   | `Null -> None
   | _ -> Some(ForumTopicReopened)
 
-let to_general_topic_forum_hidden_option (j : Yojson.Basic.t) : general_topic_forum_hidden option =
+let to_general_topic_forum_hidden_option (j : Yojson.Safe.t) : general_topic_forum_hidden option =
   match j with
   | `Null -> None
   | _ -> Some(GeneralTopicForumHidden)
 
-let to_general_topic_forum_unhidden_option (j : Yojson.Basic.t) : general_topic_forum_unhidden option =
+let to_general_topic_forum_unhidden_option (j : Yojson.Safe.t) : general_topic_forum_unhidden option =
   match j with
   | `Null -> None
   | _ -> Some(GeneralTopicForumUnhidden)
 
 let to_giveaway_created_option j : giveaway_created option = 
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2943,7 +2976,7 @@ let to_giveaway_created_option j : giveaway_created option =
   Some({ prize_star_count })
 
 let to_video_chat_scheduled_option j : video_chat_scheduled option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2951,7 +2984,7 @@ let to_video_chat_scheduled_option j : video_chat_scheduled option =
   Some({ start_date })
 
 let to_video_chat_ended_option j : video_chat_ended option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2959,7 +2992,7 @@ let to_video_chat_ended_option j : video_chat_ended option =
   Some({ duration })
 
 let to_video_chat_participants_invited_option j : video_chat_participants_invited option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2967,7 +3000,7 @@ let to_video_chat_participants_invited_option j : video_chat_participants_invite
   Some({ users })
 
 let to_web_app_data_option j : web_app_data option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2976,7 +3009,7 @@ let to_web_app_data_option j : web_app_data option =
   Some({ data; button_text })
 
 let to_web_app_info_option j : web_app_info option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -2984,7 +3017,7 @@ let to_web_app_info_option j : web_app_info option =
   Some({ url })
 
 let to_login_url_option j : login_url option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3000,7 +3033,7 @@ let to_login_url_option j : login_url option =
   })
 
 let to_switch_inline_query_chosen_chat_option j : switch_inline_query_chosen_chat option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3018,7 +3051,7 @@ let to_switch_inline_query_chosen_chat_option j : switch_inline_query_chosen_cha
   })
 
 let to_copy_text_button_option j : copy_text_button option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3026,7 +3059,7 @@ let to_copy_text_button_option j : copy_text_button option =
   Some({ text })
 
 let to_inline_keyboard_button j : inline_keyboard_button =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let text = j |> member "text" |> to_string in
   let url = j |> member "url" |> to_string_option in
   let callback_data = j |> member "callback_data" |> to_string_option in
@@ -3049,7 +3082,7 @@ let to_inline_keyboard_button j : inline_keyboard_button =
   }
 
 let to_inline_keyboard_markup_option j : inline_keyboard_markup option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3061,16 +3094,16 @@ let to_inline_keyboard_markup_option j : inline_keyboard_markup option =
   in
   let inline_keyboard = j |> member "inline_keyboard" |> f in
   Some( { inline_keyboard = inline_keyboard } )
-  (* | _ -> failwith @@ Printf.sprintf "to_inline_keyboard_markup_option: do not know what to do: %s" (Yojson.Basic.pretty_to_string j) *)
+  (* | _ -> failwith @@ Printf.sprintf "to_inline_keyboard_markup_option: do not know what to do: %s" (Yojson.Safe.pretty_to_string j) *)
 
 let rec to_message_option j : message option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
   in
   let to_maybe_inaccessible_message_option j : maybe_inaccessible_message option =
-    let open Yojson.Basic.Util in
+    let open Yojson.Safe.Util in
     let open BatOption in
     match j with
     | `Null -> None
@@ -3081,7 +3114,7 @@ let rec to_message_option j : message option =
     | _ -> Some(Message(get (to_message_option j)))
   in
   let to_giveaway_completed_option j : giveaway_completed option =
-    let open Yojson.Basic.Util in
+    let open Yojson.Safe.Util in
     match j with
     | `Null -> None
     | _ ->
@@ -3154,8 +3187,8 @@ let rec to_message_option j : message option =
   let supergroup_chat_created = j |> member "supergroup_chat_created" |> to_bool_option' in
   let channel_chat_created = j |> member "channel_chat_created" |> to_bool_option' in
   let message_auto_delete_timer_changed = j |> member "message_auto_delete_timer_changed" |> to_message_auto_delete_timer_changed_option in
-  let migrate_to_chat_id = j |> member "migrate_to_chat_id" |> to_int_option in
-  let migrate_from_chat_id = j |> member "migrate_to_chat_id" |> to_int_option in
+  let migrate_to_chat_id = j |> member "migrate_to_chat_id" |> to_int64_option in
+  let migrate_from_chat_id = j |> member "migrate_to_chat_id" |> to_int64_option in
   let pinned_message = j |> member "pinned_message" |> to_maybe_inaccessible_message_option in
   let users_shared = j |> member "users_shared" |> to_users_shared_option in
   let chat_shared = j |> member "chat_shared" |> to_chat_shared_option in
@@ -3269,7 +3302,7 @@ let to_message j =
   get (to_message_option j)
 
 let to_business_connection_option j : business_connection option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   let to_bool_option' x =
     x |> to_bool_option |> default false
@@ -3279,7 +3312,7 @@ let to_business_connection_option j : business_connection option =
   | _ ->
   let id = j |> member "id" |> to_string in
   let user = j |> member "user" |> to_user in
-  let user_chat_id = j |> member "user_chat_id" |> to_int in
+  let user_chat_id = j |> member "user_chat_id" |> to_int64 in
   let date = j |> member "date" |> to_int in
   let can_reply = j |> member "can_reply" |> to_bool_option' in
   let is_enabled = j |> member "is_enabled" |> to_bool_option' in
@@ -3293,7 +3326,7 @@ let to_business_connection_option j : business_connection option =
   })
 
 let to_business_messages_deleted_option j : business_messages_deleted option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3307,24 +3340,24 @@ let to_business_messages_deleted_option j : business_messages_deleted option =
   })
 
 let to_reaction_type_emoji j : reaction_type_emoji =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let emoji = j |> member "emoji" |> to_string in
   { _type; emoji }
 
 let to_reaction_type_custom_emoji j : reaction_type_custom_emoji =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   let custom_emoji_id = j |> member "custom_emoji_id" |> to_string in
   { _type; custom_emoji_id }
 
 let to_reaction_type_paid j : reaction_type_paid =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let _type = j |> member "type" |> to_string in
   { _type } 
 
 let to_reaction_type_option j : reaction_type option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3347,7 +3380,7 @@ let to_reaction_type_list j : reaction_type list =
   | _ -> []
 
 let to_message_reaction_updated_option j : message_reaction_updated option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3369,7 +3402,7 @@ let to_message_reaction_updated_option j : message_reaction_updated option =
   })
 
 let to_reaction_count_option j : reaction_count option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3382,7 +3415,7 @@ let to_reaction_count j =
   get (to_reaction_count_option j)
 
 let to_message_reaction_count_updated_option j : message_reaction_count_updated option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3398,7 +3431,7 @@ let to_message_reaction_count_updated_option j : message_reaction_count_updated 
   })
 
 let to_inline_query_option j : inline_query option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   match j with
   | `Null -> None
   | _ ->
@@ -3423,7 +3456,7 @@ let to_yojson_option f j =
   | _ -> Some(f j)
 
 let to_chosen_inline_result_option j : chosen_inline_result option =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let f j : chosen_inline_result =
     let result_id = j |> member "result_id" |> to_string in 
     let from = j |> member "from" |> to_user in
@@ -3442,7 +3475,7 @@ let to_chosen_inline_result_option j : chosen_inline_result option =
 
 let to_maybe_inaccessible_message_option j =
   let f j : maybe_inaccessible_message =
-    let open Yojson.Basic.Util in
+    let open Yojson.Safe.Util in
     let date = j |> member "date" |> to_int in
     match date with
     | 0 -> InaccessibleMessage(to_inaccessible_message j)
@@ -3451,7 +3484,7 @@ let to_maybe_inaccessible_message_option j =
   to_yojson_option f j
 
 let to_callback_query_option j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let f j : callback_query =
     let id = j |> member "id" |> to_string in
     let from = j |> member "from" |> to_user in
@@ -3473,7 +3506,7 @@ let to_callback_query_option j =
   to_yojson_option f j
 
 let to_shipping_address j : shipping_address =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let country = j |> member "country" |> to_string in
   let state = j |> member "state" |> to_string in
   let city = j |> member "city" |> to_string in
@@ -3493,7 +3526,7 @@ let to_shipping_address_option j =
   to_yojson_option (to_shipping_address) j
 
 let to_shipping_query j : shipping_query = 
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let id = j |> member "id" |> to_string in
   let from = j |> member "from" |> to_user in
   let invoice_payload = j |> member "invoice_payload" |> to_string in
@@ -3509,7 +3542,7 @@ let to_shipping_query_option j =
   to_yojson_option (to_shipping_query) j
 
 let to_order_info j : order_info =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let name = j |> member "name" |> to_string_option in
   let phone_number = j |> member "phone_number" |> to_string_option in
   let email = j |> member "email" |> to_string_option in
@@ -3525,7 +3558,7 @@ let to_order_info_option j =
   to_yojson_option (to_order_info) j
 
 let to_pre_checkout_query j : pre_checkout_query =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let id = j |> member "id" |> to_string in
   let from = j |> member "from" |> to_user in
   let currency = j |> member "currency" |> to_string in
@@ -3547,7 +3580,7 @@ let to_pre_checkout_query_option j =
   to_yojson_option (to_pre_checkout_query) j
 
 let to_paid_media_purchased j : paid_media_purchased =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let from = j |> member "from" |> to_user in
   let paid_media_payload = j |> member "paid_media_payload" |> to_string in
   { from; paid_media_payload }
@@ -3556,7 +3589,7 @@ let to_paid_media_purchased_option j =
   to_yojson_option (to_paid_media_purchased) j
 
 let to_poll_answer j : poll_answer =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let poll_id = j |> member "poll_id" |> to_string in
   let voter_chat = j |> member "voter_chat" |> to_chat_option in
   let user = j |> member "user" |> to_user_option in
@@ -3572,12 +3605,12 @@ let to_poll_answer_option j =
   to_yojson_option (to_poll_answer) j
 
 let to_bool_option' x =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let open BatOption in
   x |> to_bool_option |> default false
 
 let to_chat_member_owner j : chat_member_owner =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   let user = j |> member "user" |> to_user in
   let is_anonymous = j |> member "is_anonymous" |> to_bool_option' in
@@ -3590,7 +3623,7 @@ let to_chat_member_owner j : chat_member_owner =
   }
 
 let to_chat_member_administrator j : chat_member_administrator =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   let user = j |> member "user" |> to_user in
   let can_be_edited = j |> member "can_be_edited" |> to_bool_option' in
@@ -3633,7 +3666,7 @@ let to_chat_member_administrator j : chat_member_administrator =
   }
 
 let to_chat_member_member j : chat_member_member =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   let user = j |> member "user" |> to_user in
   let until_date = j |> member "until_date" |> to_int_option in
@@ -3644,7 +3677,7 @@ let to_chat_member_member j : chat_member_member =
   }
 
 let to_chat_member_restricted j : chat_member_restricted =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   let user = j |> member "user" |> to_user in
   let is_member = j |> member "is_member" |> to_bool_option' in
@@ -3685,13 +3718,13 @@ let to_chat_member_restricted j : chat_member_restricted =
   }
 
 let to_chat_member_left j : chat_member_left =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   let user = j |> member "user" |> to_user in
   { status; user }
 
 let to_chat_member_banned j : chat_member_banned =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   let user = j |> member "user" |> to_user in
   let until_date = j |> member "until_date" |> to_int_option in
@@ -3702,7 +3735,7 @@ let to_chat_member_banned j : chat_member_banned =
   }
 
 let to_chat_member j : chat_member =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let status = j |> member "status" |> to_string in
   match status with
   | "creator" -> ChatMemberOwner(to_chat_member_owner j)
@@ -3714,7 +3747,7 @@ let to_chat_member j : chat_member =
   | _ -> failwith @@ Printf.sprintf "Unknown chat member: %s" status
 
 let to_chat_member_updated j : chat_member_updated =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let chat = j |> member "chat" |> to_string in
   let from = j |> member "from" |> to_user in
   let date = j |> member "date" |> to_int in
@@ -3736,7 +3769,7 @@ let to_chat_member_updated_option j =
   to_yojson_option (to_chat_member_updated) j
 
 let to_chat_invite_link j : chat_invite_link =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let invite_link = j |> member "invite_link" |> to_string in
   let creator = j |> member "creator" |> to_user in
   let creates_join_request = j |> member "creates_join_request" |> to_bool_option' in
@@ -3766,10 +3799,10 @@ let to_chat_invite_link_option j =
   to_yojson_option (to_chat_invite_link) j
 
 let to_chat_join_request j : chat_join_request =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let chat = j |> member "chat" |> to_chat in
   let from = j |> member "from" |> to_user in
-  let user_chat_id = j |> member "user_chat_id" |> to_int in
+  let user_chat_id = j |> member "user_chat_id" |> to_int64 in
   let date = j |> member "date" |> to_int in
   let bio = j |> member "bio" |> to_string_option in
   let invite_link = j |> member "to_invite_link" |> to_chat_invite_link_option in
@@ -3786,19 +3819,19 @@ let to_chat_join_request_option j =
   to_yojson_option (to_chat_join_request) j
 
 let to_chat_boost_source_premium j : chat_boost_source_premium =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let source = j |> member "source" |> to_string in
   let user = j |> member "user" |> to_user in
   { source; user }
 
 let to_chat_boost_source_gift_code j : chat_boost_source_gift_code =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let source = j |> member "source" |> to_string in
   let user = j |> member "user" |> to_user in
   { source; user }
 
 let to_chat_boost_source_giveaway j : chat_boost_source_giveaway =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let source = j |> member "source" |> to_string in
   let giveaway_message_id = j |> member "giveaway_message_id" |> to_int in
   let user = j |> member "user" |> to_user_option in
@@ -3813,7 +3846,7 @@ let to_chat_boost_source_giveaway j : chat_boost_source_giveaway =
   }
 
 let to_chat_boost_source j : chat_boost_source =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let source = j |> member "source" |> to_string in
   match source with
   | "premium" -> ChatBoostSourcePremium(to_chat_boost_source_premium j)
@@ -3822,7 +3855,7 @@ let to_chat_boost_source j : chat_boost_source =
   | _ -> failwith @@ Printf.sprintf "Unknown chat boost source: %s" source
 
 let to_chat_boost j : chat_boost =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let boost_id = j |> member "boost_id" |> to_string in
   let add_date = j |> member "add_date" |> to_int in
   let expiration_date = j |> member "expiration_date" |> to_int in
@@ -3835,7 +3868,7 @@ let to_chat_boost j : chat_boost =
   }
 
 let to_chat_boost_updated j : chat_boost_updated =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let chat = j |> member "chat" |> to_chat in
   let boost = j |> member "boost" |> to_chat_boost in
   { chat; boost }
@@ -3844,7 +3877,7 @@ let to_chat_boost_updated_option j =
   to_yojson_option (to_chat_boost_updated) j
 
 let json_to_update j : update =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let update_id = j |> member "update_id" |> to_int in
   let message = j |> member "message" |> to_message_option in
   let edited_message = j |> member "edited_message" |> to_message_option in
@@ -3896,7 +3929,7 @@ let json_to_update j : update =
   }
 
 let yojson_to_message_update_from_results j =
-  let open Yojson.Basic.Util in
+  let open Yojson.Safe.Util in
   let ok = j |> member "ok" |> to_bool in
   match ok with
   | false -> None

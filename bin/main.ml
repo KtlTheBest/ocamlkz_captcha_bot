@@ -2,7 +2,7 @@
 open Ocamlkz_captcha_bot
 
 module PairIII = struct
-  type t = (BatInt64.t * int * int)
+  type t = (BatInt64.t * BatInt64.t * int)
   let compare ((aa, ab, ac) : t) ((ba, bb, bc) : t) =
     let res = compare aa ba in
     if res = 0 then (
@@ -118,7 +118,7 @@ let () =
         else 
           new_user.first_name ^ " " ^ get new_user.last_name 
       in
-      Printf.sprintf "[%s](tg://user?id=%d)" name id
+      Printf.sprintf "[%s](tg://user?id=%s)" name (BatInt64.to_string id)
     in
     let mention = create_mention new_user in
     let create_arithmetic_question () =
@@ -177,17 +177,14 @@ let () =
               | MulT -> Mul(a, b)
             in
             if depth = 0 then Int(Random.int 10) else
-            if Random.bool () then
-              Int(BatRandom.int 10)
-            else
-              resolve_tt @@
-                BatOption.get @@
-                  BatEnum.get @@
-                    BatRandom.multi_choice 1 @@ 
-                    ([ AddT; SubT; MulT ] 
-                    |> List.map (BatEnum.singleton) 
-                    |> List.fold_left (BatEnum.append) (BatEnum.empty ())
-                    )
+            resolve_tt @@
+              BatOption.get @@
+                BatEnum.get @@
+                  BatRandom.multi_choice 1 @@ 
+                  ([ AddT; SubT; MulT ] 
+                  |> List.map (BatEnum.singleton) 
+                  |> List.fold_left (BatEnum.append) (BatEnum.empty ())
+                  )
 
         end 
       in
@@ -238,12 +235,13 @@ let () =
       let id = m.message_id in
       let user_id = new_user.id in
       let chat = m.chat in
-      let chat_id = BatInt64.of_int chat.id in
+      let chat_id = chat.id in
       let combo = (chat_id, user_id, id) in
       let cur_map = !captcha_answers in
       let new_map = PairIIIMap.add combo a cur_map in
       return (captcha_answers := new_map)
     | None -> return ()
+    | _ -> return ()
     (* Lwt_io.printf "%s" (show_return_type res) *)
   in 
 
@@ -272,43 +270,42 @@ let () =
 
   let respond_to_captcha (cbq : callback_query) =
     let open BatOption in
-    let chat_id_val = get (cbq.chat_instance) in
-    Lwt_io.printf "DEBUG: chat_id_val: %s" chat_id_val >>= fun _ ->
-    let chat_id = BatInt64.of_string @@ get (cbq.chat_instance) in
     let user_id = cbq.from.id in
     let message = get (cbq.message) in
-    let message_id =
-      match message with
-      | Message(msg) -> msg.message_id
-      | InaccessibleMessage(im) -> im.message_id
-    in
-    let cur_map = !captcha_answers in
-    let combo = (chat_id, user_id, message_id) in
-    let ans = PairIIIMap.find_opt combo cur_map in
-    let data = get cbq.data in
-    match ans with
-    | Some(ans') ->
-      if string_of_int ans' = data then
+    match message with
+    | Message(msg) -> 
+      let message_id = msg.message_id in
+      let chat_id = msg.chat.id in
+      let cur_map = !captcha_answers in
+      let combo = (chat_id, user_id, message_id) in
+      let ans = PairIIIMap.find_opt combo cur_map in
+      let data = get cbq.data in
+      (
+      match ans with
+      | Some(ans') ->
+        if string_of_int ans' = data then
+          Bot.send_message
+          SendMessage.(
+            send_message_to_chat_of_instance chat_id
+            |> with_text "Correct!"
+          )
+          |> l_ignore
+        else
+          Bot.send_message
+          SendMessage.(
+            send_message_to_chat_of_instance chat_id
+            |> with_text "Failure!"
+          )
+          |> l_ignore
+      | None ->
         Bot.send_message
         SendMessage.(
           send_message_to_chat_of_instance chat_id
-          |> with_text "Correct!"
+          |> with_text "Failure 2!"
         )
         |> l_ignore
-      else
-        Bot.send_message
-        SendMessage.(
-          send_message_to_chat_of_instance chat_id
-          |> with_text "Failure!"
-        )
-        |> l_ignore
-    | None ->
-      Bot.send_message
-      SendMessage.(
-        send_message_to_chat_of_instance chat_id
-        |> with_text "Failure 2!"
       )
-      |> l_ignore
+    | InaccessibleMessage(_) -> return ()
   in
 
   Bot.switch_debug_on ();
