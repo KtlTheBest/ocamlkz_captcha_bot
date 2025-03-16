@@ -1220,6 +1220,17 @@ type send_message_type = {
 }
 [@@deriving show]
 
+type successful_result_type =
+  | Message of message
+[@@deriving show]
+
+type return_type = {
+  ok : bool;
+  error: string option;
+  result : successful_result_type option;
+}
+[@@deriving show]
+
 let assoc_to_json l =
   let l' = List.fold_left (@) [] l in
   `Assoc l'
@@ -3041,16 +3052,16 @@ let to_inline_keyboard_markup_option j : inline_keyboard_markup option =
   let open Yojson.Basic.Util in
   match j with
   | `Null -> None
-  | `List _ ->
-  Some(
-    { inline_keyboard = 
-      j 
-      |> to_list 
-      |> List.map (to_list) 
-      |> List.map (List.map to_inline_keyboard_button)
-    }
-  )
-  | _ -> failwith "to_inline_keyboard_markup_option: do not know what to do"
+  | _ ->
+  let f x = 
+    x 
+    |> to_list 
+    |> List.map (to_list) 
+    |> List.map (List.map to_inline_keyboard_button)
+  in
+  let inline_keyboard = j |> member "inline_keyboard" |> f in
+  Some( { inline_keyboard = inline_keyboard } )
+  (* | _ -> failwith @@ Printf.sprintf "to_inline_keyboard_markup_option: do not know what to do: %s" (Yojson.Basic.pretty_to_string j) *)
 
 let rec to_message_option j : message option =
   let open Yojson.Basic.Util in
@@ -3907,6 +3918,7 @@ type ergonomic_message_update =
   | UnknownMessage of message
   | UnknownUpdate of update
 
+(*
 type errtype =
   | UnknownError of string
 [@@deriving show]
@@ -3915,6 +3927,7 @@ type return_type =
   | Ok of string
   | Fail of errtype
 [@@deriving show]
+*)
 
 let message_to_ergonomic_message_update (msg : message) =
   let open BatOption in

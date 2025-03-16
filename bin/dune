@@ -3,3 +3,7 @@
  (name main)
  (ocamlopt_flags "-g")
  (libraries ocamlkz_captcha_bot))
+
+(env
+ (dev
+  (flags :standard -warn-error -26-27-32-33)))

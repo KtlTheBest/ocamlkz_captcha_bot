@@ -171,6 +171,34 @@ module SendMessage = struct
     ; reply_markup
     }
   
+  let send_message_to_chat_of_instance (chat_instance : BatInt64.t) : Telegram_types.send_message_type =
+    let open Telegram_types in
+    let chat_id = Chat(BatInt64.to_int chat_instance) in
+    let text = "" in
+    let message_thread_id = None in
+    let parse_mode = None in
+    let entities = None in
+    let link_preview_options = None in
+    let disable_notification = None in
+    let protect_content = None in
+    let allow_paid_broadcast = None in
+    let message_effect_id = None in
+    let reply_parameters = None in
+    let reply_markup = None in
+    { chat_id
+    ; text
+    ; message_thread_id
+    ; parse_mode
+    ; entities
+    ; link_preview_options
+    ; disable_notification
+    ; protect_content
+    ; allow_paid_broadcast
+    ; message_effect_id
+    ; reply_parameters
+    ; reply_markup
+    }
+  
   let with_text t (req : Telegram_types.send_message_type) =
     { req with text = t }
   
@@ -365,7 +393,7 @@ module LwtHttpBot(Token: TokenT) = struct
     Lwt_main.run (ergonomic_poller f ())
   
   
-  let send_message req =
+  let send_message req : Telegram_types.return_type t =
     let sendMessageToUser_string = api_method "sendMessage" in
     let open BatPervasives in
     let open Lwt in
@@ -388,13 +416,17 @@ module LwtHttpBot(Token: TokenT) = struct
         Lwt_io.printf "Body: %s\n" body >>= return) |> ignore
       end
     | NoDebug -> ());
+    let open Yojson.Basic.Util in
     let body_yojson = Yojson.Basic.(from_string body) in
-    let ok = Yojson.Basic.Util.(body_yojson |> member "ok" |> to_bool) in
-    if ok then
-      let open Telegram_types in
-      Ok(Yojson.Basic.pretty_to_string body_yojson)
-    else
-      Fail(UnknownError("Something bad happened"))
+    let ok = body_yojson |> member "ok" |> to_bool in
+    let error = body_yojson |> member "error" |> to_string_option in
+    let result = body_yojson |> member "result" |> Telegram_types.to_message_option |> BatOption.map (fun x -> Telegram_types.(Message x)) in
+    ({
+      ok;
+      error;
+      result;
+    } : Telegram_types.return_type)
+    (* Yojson.Basic.pretty_to_string body_yojson *)
   
   (*
   let sendMessageToUser chat_id msg =
