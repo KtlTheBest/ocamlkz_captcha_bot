@@ -19,6 +19,8 @@ end
 module PairIIIMap = Map.Make(PairIII)
 
 let captcha_answers = ref PairIIIMap.empty
+let captcha_timeouts = ref PairIIIMap.empty
+
 
 let () =
   let token = Utils.get_token_or_ask_user_for_one () in
@@ -139,13 +141,13 @@ let () =
             let f = expr_to_string in
             match v with
             | Int(i) -> Printf.sprintf "%d" i
-            | Add(a, b) -> Printf.sprintf "%s + %s" (f a) (f b)
-            | Sub(a, b) -> Printf.sprintf "%s - %s" (f a) (f b)
-            | Mul(Add(aa, ab), Add(ba, bb)) -> Printf.sprintf "(%s + %s) * (%s + %s)" (f aa) (f ab) (f ba) (f bb)
-            | Mul(Add(aa, ab), Sub(ba, bb)) -> Printf.sprintf "(%s + %s) * (%s - %s)" (f aa) (f ab) (f ba) (f bb)
-            | Mul(Sub(aa, ab), Add(ba, bb)) -> Printf.sprintf "(%s - %s) * (%s + %s)" (f aa) (f ab) (f ba) (f bb)
-            | Mul(Sub(aa, ab), Sub(ba, bb)) -> Printf.sprintf "(%s - %s) * (%s - %s)" (f aa) (f ab) (f ba) (f bb)
-            | Mul(a, b) -> Printf.sprintf "%s * %s" (f a) (f b)
+            | Add(a, b) -> Printf.sprintf "%s \\+ %s" (f a) (f b)
+            | Sub(a, b) -> Printf.sprintf "%s \\- %s" (f a) (f b)
+            | Mul(Add(aa, ab), Add(ba, bb)) -> Printf.sprintf "\\(%s \\+ %s\\) * \\(%s \\+ %s\\)" (f aa) (f ab) (f ba) (f bb)
+            | Mul(Add(aa, ab), Sub(ba, bb)) -> Printf.sprintf "\\(%s \\+ %s\\) * \\(%s \\- %s\\)" (f aa) (f ab) (f ba) (f bb)
+            | Mul(Sub(aa, ab), Add(ba, bb)) -> Printf.sprintf "\\(%s \\- %s\\) * \\(%s \\+ %s\\)" (f aa) (f ab) (f ba) (f bb)
+            | Mul(Sub(aa, ab), Sub(ba, bb)) -> Printf.sprintf "\\(%s \\- %s\\) * \\(%s \\- %s\\)" (f aa) (f ab) (f ba) (f bb)
+            | Mul(a, b) -> Printf.sprintf "%s \\* %s" (f a) (f b)
 
           let rec calc_answer v =
             match v with
@@ -232,14 +234,50 @@ let () =
     let res' = res.result in
     match res' with
     | Some(Message(m)) ->
-      let id = m.message_id in
-      let user_id = new_user.id in
-      let chat = m.chat in
-      let chat_id = chat.id in
-      let combo = (chat_id, user_id, id) in
-      let cur_map = !captcha_answers in
-      let new_map = PairIIIMap.add combo a cur_map in
-      return (captcha_answers := new_map)
+      let get_combo () =
+        let id = m.message_id in
+        let user_id = new_user.id in
+        let chat = m.chat in
+        let chat_id = chat.id in
+        let combo = (chat_id, user_id, id) in
+        combo
+      in
+      let add_new_answer () =
+        let combo = get_combo () in
+        let cur_map = !captcha_answers in
+        let new_map = PairIIIMap.add combo a cur_map in
+        captcha_answers := new_map
+      in
+      let add_new_timer () =
+        let timeout = 60 (* 1 minute *) in
+        let failed_captcha () : unit =
+          let message = Printf.sprintf "User %s has failed to accomplish the captcha within %d seconds, kicking the \"user\"" mention timeout in
+          let send_req =
+            SendMessage.(
+            send_message_to m.chat
+            |> with_text message
+            |> as_markdownv2
+            )
+          in
+          let shoot_requests () =
+            Bot.send_message send_req >>= fun _ ->
+            let ban_chat_member_req =
+              BanChatMember.(ban_chat_member_of_chat m.chat new_user)
+            in
+            Bot.ban_chat_member ban_chat_member_req
+          in
+          shoot_requests () |> ignore;
+        in
+        let timeout_task = Lwt_timeout.create timeout failed_captcha in
+        let combo = get_combo () in
+        let cur_map = !captcha_timeouts in
+        let new_map = PairIIIMap.add combo timeout_task cur_map in
+        captcha_timeouts := new_map;
+        Lwt_timeout.start timeout_task
+      in
+      add_new_answer ();
+      add_new_timer ();
+      return ()
     | None -> return ()
     | _ -> return ()
     (* Lwt_io.printf "%s" (show_return_type res) *)
@@ -282,14 +320,26 @@ let () =
       let data = get cbq.data in
       (
       match ans with
-      | Some(ans') ->
-        if string_of_int ans' = data then
+      | Some(ans') -> (
+        if string_of_int ans' = data then (
           Bot.send_message
           SendMessage.(
             send_message_to_chat_of_instance chat_id
             |> with_text "Correct!"
           )
-          |> l_ignore
+          |> l_ignore |> ignore;
+          let cur_map = !captcha_timeouts in
+          let cur_timer = PairIIIMap.find_opt combo cur_map in
+          (
+            match cur_timer with
+            | None -> return ()
+            | Some(t) -> 
+              Lwt_timeout.stop t;
+              let new_map = PairIIIMap.remove combo cur_map in
+              captcha_timeouts := new_map;
+              return ()
+          )
+        )
         else
           Bot.send_message
           SendMessage.(
@@ -297,6 +347,7 @@ let () =
             |> with_text "Failure!"
           )
           |> l_ignore
+        )
       | None ->
         Bot.send_message
         SendMessage.(

@@ -217,6 +217,28 @@ module DeleteMessage = struct
     { chat_id = Chat chat_id; message_id = mess_id }
 end
 
+module BanChatMember = struct
+  let ban_chat_member_of_chat (chat : Telegram_types.chat) (user : Telegram_types.user) : Telegram_types.ban_chat_member_type =
+    let chat_id = Telegram_types.Chat(chat.id) in
+    let user_id = user.id in
+    let until_date = None in
+    let revoke_messages = None in
+    { chat_id
+    ; user_id
+    ; until_date
+    ; revoke_messages
+    }
+
+  let with_until_date date bcm : Telegram_types.ban_chat_member_type =
+    { bcm with until_date = Some(date) }
+  
+  let revoke_messages bcm : Telegram_types.ban_chat_member_type =
+    { bcm with revoke_messages = Some(true) }
+
+  let do_not_revoke_messages bcm : Telegram_types.ban_chat_member_type =
+    { bcm with revoke_messages = Some(false) }
+end
+
 module LwtHttpBot(Token: TokenT) = struct
   open Lwt
   open Cohttp
@@ -441,6 +463,39 @@ module LwtHttpBot(Token: TokenT) = struct
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
         to_string @@ Telegram_types.delete_message_request_to_yojson req
+      )
+    in
+    Client.post (Uri.of_string deleteMessage_string)
+      ~headers:json_header
+      ~body:post_body >>= fun (resp, body) ->
+    let code = resp |> Response.status |> Code.code_of_status in
+    body |> Cohttp_lwt.Body.to_string >|= fun body ->
+    (match !debug_mode with
+    | Debug -> begin
+        (Lwt_io.printf "Response code: %d\n" code >>= fun _ ->
+        Lwt_io.printf "Headers: %s\n" (resp |> Response.headers |> Header.to_string) >>= fun _ ->
+        Lwt_io.printf "Body: %s\n" body >>= return) |> ignore
+      end
+    | NoDebug -> ());
+    let open Yojson.Safe.Util in
+    let body_yojson = Yojson.Safe.(from_string body) in
+    let ok = body_yojson |> member "ok" |> to_bool in
+    let error = body_yojson |> member "error" |> to_string_option in
+    let result = body_yojson |> member "result" |> to_bool_option |> BatOption.map (fun _ -> Telegram_types.True) in
+    ({
+      ok;
+      error;
+      result;
+    } : Telegram_types.return_type)
+
+  let ban_chat_member (req : Telegram_types.ban_chat_member_type) : Telegram_types.return_type t =
+    let deleteMessage_string = api_method "banChatMember" in
+    let open BatPervasives in
+    let open Lwt in
+    let post_body =
+      Cohttp_lwt.Body.of_string (
+        let open Yojson.Safe in
+        to_string @@ Telegram_types.ban_chat_member_request_to_yojson req
       )
     in
     Client.post (Uri.of_string deleteMessage_string)

@@ -124,7 +124,7 @@ type chat_member =
 [@@deriving show]
 
 type chat_member_updated = { 
-  chat : string;
+  chat : chat;
   from : user;
   date : int;
   old_chat_member: chat_member;
@@ -1240,6 +1240,13 @@ type delete_message_type = {
 }
 [@@deriving show]
 
+type ban_chat_member_type = {
+  chat_id : target_chat;
+  user_id: int64;
+  until_date: int option;
+  revoke_messages: bool option;
+}
+
 type successful_result_type =
   | Message of message
   | True
@@ -1887,6 +1894,30 @@ let delete_message_request_to_yojson (dm : delete_message_type) : Yojson.Safe.t 
   assoc_to_json [
     chat_id;
     message_id;
+  ]
+
+let ban_chat_member_request_to_yojson (bcm : ban_chat_member_type) : Yojson.Safe.t =
+  let chat_id =
+    match bcm.chat_id with
+    | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))]
+    | Channel(v) -> [("chat_id", `String v)]
+  in
+  let user_id = [("user_id", `Intlit (BatInt64.to_string bcm.user_id))] in
+  let until_date =
+    match bcm.until_date with
+    | None -> []
+    | Some(date) -> [("until_date", `Int date)]
+  in
+  let revoke_messages =
+    match bcm.revoke_messages with
+    | None -> []
+    | Some(rm) -> [("revoke_messages", `Bool rm)]
+  in
+  assoc_to_json [
+    chat_id;
+    user_id;
+    until_date;
+    revoke_messages;
   ]
 
 let to_user_option j : user option =
@@ -3748,7 +3779,7 @@ let to_chat_member j : chat_member =
 
 let to_chat_member_updated j : chat_member_updated =
   let open Yojson.Safe.Util in
-  let chat = j |> member "chat" |> to_string in
+  let chat = j |> member "chat" |> to_chat in
   let from = j |> member "from" |> to_user in
   let date = j |> member "date" |> to_int in
   let old_chat_member = j |> member "old_chat_member" |> to_chat_member in
