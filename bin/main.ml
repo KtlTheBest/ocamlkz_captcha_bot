@@ -1,6 +1,16 @@
 [@@@ocaml.warnings "-27-33"]
 open Ocamlkz_captcha_bot
 
+module PairII = struct
+  type t = (BatInt64.t * BatInt64.t)
+  let compare ((aa, ab) : t) ((ba, bb) : t) =
+    let res = compare aa ba in
+    if res = 0 then
+      compare ab bb
+    else
+      res
+end
+
 module PairIII = struct
   type t = (BatInt64.t * BatInt64.t * int)
   let compare ((aa, ab, ac) : t) ((ba, bb, bc) : t) =
@@ -17,9 +27,11 @@ module PairIII = struct
 end
 
 module PairIIIMap = Map.Make(PairIII)
+module PairIIMap  = Map.Make(PairII)
 
 let captcha_answers = ref PairIIIMap.empty
 let captcha_timeouts = ref PairIIIMap.empty
+let unverified_users_messages = ref PairIIMap.empty
 
 
 let () =
@@ -190,7 +202,7 @@ let () =
 
         end 
       in
-      let q = ArithmeticExpression.create_expr_of_depth 4 in
+      let q = ArithmeticExpression.create_expr_of_depth 1 in
       let a = ArithmeticExpression.calc_answer q in
       let q_as_s = ArithmeticExpression.expr_to_string q in
       (q_as_s, a)
@@ -242,6 +254,20 @@ let () =
         let combo = (chat_id, user_id, id) in
         combo
       in
+      let add_unverified_user () =
+        let combo =
+          let chat_id = m.chat.id in
+          let user_id = new_user.id in
+          (chat_id, user_id)
+        in
+        let cur_map = !unverified_users_messages in
+        let cur_messages = PairIIMap.find_opt combo cur_map in
+        match cur_messages with
+        | Some(_) -> ()
+        | None ->
+          let new_map = PairIIMap.add combo [] cur_map in
+          unverified_users_messages := new_map
+      in
       let add_new_answer () =
         let combo = get_combo () in
         let cur_map = !captcha_answers in
@@ -264,7 +290,20 @@ let () =
             let ban_chat_member_req =
               BanChatMember.(ban_chat_member_of_chat m.chat new_user)
             in
-            Bot.ban_chat_member ban_chat_member_req
+            Bot.ban_chat_member ban_chat_member_req >>= fun _ ->
+            let make_delete_request (msg : message) =
+              DeleteMessage.delete_message_of_chat (msg.chat.id) (msg.message_id)
+            in
+            let cur_map = !unverified_users_messages in
+            let combo = (m.chat.id, new_user.id) in
+            let unverified_messages = PairIIMap.find_opt combo cur_map in
+            match unverified_messages with
+            | None -> return ()
+            | Some(messages) ->
+              List.map (fun x -> Bot.delete_message @@ make_delete_request x) messages |> ignore;
+              let new_map = PairIIMap.remove combo cur_map in
+              unverified_users_messages := new_map;
+              return ()
           in
           shoot_requests () |> ignore;
         in
@@ -276,6 +315,7 @@ let () =
         Lwt_timeout.start timeout_task
       in
       add_new_answer ();
+      add_unverified_user ();
       add_new_timer ();
       return ()
     | None -> return ()
@@ -312,6 +352,24 @@ let () =
     let message = get (cbq.message) in
     match message with
     | Message(msg) -> 
+      let check_from_unverified (msg : message) =
+        let chat_id = msg.chat.id in
+        let user_id = msg.from in
+        match user_id with
+        | None -> ()
+        | Some(from) -> 
+          let combo = (chat_id, from.id) in
+          let cur_map = !unverified_users_messages in
+          let cur_messages = PairIIMap.find_opt combo cur_map in
+          (match cur_messages with
+          | None -> ()
+          | Some(msgs) ->
+            let msgs' = msg :: msgs in
+            let new_map = PairIIMap.add combo msgs' cur_map in
+            unverified_users_messages := new_map
+          )
+      in
+      check_from_unverified msg;
       let message_id = msg.message_id in
       let chat_id = msg.chat.id in
       let cur_map = !captcha_answers in
