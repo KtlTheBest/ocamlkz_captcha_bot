@@ -301,7 +301,7 @@ module LwtHttpBot(Token: TokenT) = struct
   *)
 
   let try_construct_message_update j : Telegram_types.update =
-    Telegram_types.json_to_update j
+    Telegram_types_utils.json_to_update j
 
   let try_construct_message_update_list j =
     List.map try_construct_message_update j
@@ -373,7 +373,7 @@ module LwtHttpBot(Token: TokenT) = struct
   let rec poller f () =
     let open Telegram_types in
     getUpdates () >>= fun updates_json ->
-    let updates_opt = Telegram_types.yojson_to_message_update_from_results updates_json in
+    let updates_opt = Telegram_types_utils.yojson_to_message_update_from_results updates_json in
     match updates_opt with
     | None -> Lwt_unix.sleep 5.0 >>= poller f
     | Some(updates) ->
@@ -393,7 +393,7 @@ module LwtHttpBot(Token: TokenT) = struct
   let rec ergonomic_poller f () =
     let open Telegram_types in
     getUpdates () >>= fun updates_json ->
-    let updates_opt = Telegram_types.yojson_to_message_update_from_results updates_json in
+    let updates_opt = Telegram_types_utils.yojson_to_message_update_from_results updates_json in
     match updates_opt with
     | None -> Lwt_unix.sleep 5.0 >>= ergonomic_poller f
     | Some(updates) ->
@@ -407,7 +407,7 @@ module LwtHttpBot(Token: TokenT) = struct
     updates
     |> List.map 
         (fun x -> 
-            (Telegram_types.update_to_ergonomic_message_update x, x))
+            (Telegram_types_utils.update_to_ergonomic_message_update x, x))
     |> List.map (fun (a, b) -> f a b)
     |> List.cons (Lwt_unix.sleep 5.0)
     |> Lwt.join
@@ -427,10 +427,10 @@ module LwtHttpBot(Token: TokenT) = struct
     let post_body =
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
-        to_string @@ Telegram_types.send_message_request_to_yojson req
+        to_string @@ Telegram_types_utils.send_message_request_to_yojson req
       )
     in
-    Lwt_io.printf "Sending data to %s:\n%s\n" "sendMessage" (Yojson.Safe.pretty_to_string @@ Telegram_types.send_message_request_to_yojson req) >>= fun _ ->
+    Lwt_io.printf "Sending data to %s:\n%s\n" "sendMessage" (Yojson.Safe.pretty_to_string @@ Telegram_types_utils.send_message_request_to_yojson req) >>= fun _ ->
     Client.post (Uri.of_string sendMessageToUser_string)
       ~headers:json_header
       ~body:post_body >>= fun (resp, body) ->
@@ -447,7 +447,7 @@ module LwtHttpBot(Token: TokenT) = struct
     let body_yojson = Yojson.Safe.(from_string body) in
     let ok = body_yojson |> member "ok" |> to_bool in
     let error = body_yojson |> member "error" |> to_string_option in
-    let result = body_yojson |> member "result" |> Telegram_types.to_message_option |> BatOption.map (fun x -> Telegram_types.(Message x)) in
+    let result = body_yojson |> member "result" |> Telegram_types_utils.to_message_option |> BatOption.map (fun x -> Telegram_types.(Message x)) in
     ({
       ok;
       error;
@@ -462,7 +462,7 @@ module LwtHttpBot(Token: TokenT) = struct
     let post_body =
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
-        to_string @@ Telegram_types.delete_message_request_to_yojson req
+        to_string @@ Telegram_types_utils.delete_message_request_to_yojson req
       )
     in
     Client.post (Uri.of_string deleteMessage_string)
@@ -495,7 +495,7 @@ module LwtHttpBot(Token: TokenT) = struct
     let post_body =
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
-        to_string @@ Telegram_types.ban_chat_member_request_to_yojson req
+        to_string @@ Telegram_types_utils.ban_chat_member_request_to_yojson req
       )
     in
     Client.post (Uri.of_string deleteMessage_string)
