@@ -1373,3 +1373,169 @@ type chat_full_info = {
   location: chat_location option;
 }
 [@@deriving show]
+
+type user_chat_boosts = {
+  boosts : chat_boost list;
+}
+[@@deriving show]
+
+type bot_command = {
+  command: string;
+  description: string;
+}
+[@@deriving show]
+
+type bot_command_scope_default = {
+  _type: string;
+}
+[@@deriving show]
+
+type bot_command_scope_all_private_chats = {
+    _type: string;
+}
+[@@deriving show]
+
+type bot_command_scope_all_group_chats = {
+  _type: string;
+}
+[@@deriving show]
+
+type bot_command_scope_all_chat_administrators = {
+  _type: string;
+}
+[@@deriving show]
+
+type bot_command_scope_chat = {
+  _type: string;
+  chat_id: target_chat;
+}
+[@@deriving show]
+
+type bot_command_scope_chat_administrators = {
+  _type: string;
+  chat_id: target_chat;
+}
+[@@deriving show]
+
+type bot_command_scope_chat_member = {
+    _type: string;
+    chat_id: target_chat;
+    user_id: int64;
+}
+[@@deriving show]
+
+type bot_command_scope =
+  | BotCommandScopeDefault of bot_command_scope_default
+  | BotCommandScopeAllPrivateChats of bot_command_scope_all_private_chats
+  | BotCommandScopeAllGroupChats of bot_command_scope_all_group_chats
+  | BotCommandScopeAllChatAdministrators of bot_command_scope_all_chat_administrators
+  | BotCommandScopeChat of bot_command_scope_chat
+  | BotCommandScopeChatAdministrators of bot_command_scope_chat_administrators
+  | BotCommandScopeChatMember of bot_command_scope_chat_member
+[@@deriving show]
+
+type bot_name = { name: string } [@@deriving show]
+
+type bot_description = { description: string } [@@deriving show]
+
+type bot_short_description = { short_description: string } [@@deriving show]
+
+type menu_button_commands = {
+  _type: string;
+}
+[@@deriving show]
+
+type menu_button_web_app = {
+  _type: string;
+  text: string;
+  web_app: web_app_info;
+}
+[@@deriving show]
+
+type menu_button_default = {
+  _type: string;
+}
+[@@deriving show]
+
+type menu_button =
+  | MenuButtonCommands of menu_button_commands
+  | MenuButtonWebApp of menu_button_web_app
+  | MenuButtonDefault of menu_button_default
+[@@deriving show]
+
+type input_media_animation = {
+  _type: string;
+  media: string;
+  thumbnail: string option;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list option;
+  show_caption_above_media: bool option;
+  width: int option;
+  height: int option;
+  duration: int option;
+  has_spoiler: bool option;
+}
+[@@deriving show]
+
+type input_media_document = {
+  _type: string;
+  media: string;
+  thumbnail: string option;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list option;
+  disable_content_type_detection: bool option;
+}
+[@@deriving show]
+
+type input_media_audio = {
+  _type: string;
+  media: string;
+  thumbnail: string option;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list option;
+  duration: int option;
+  performer: string option;
+  title: string option;
+}
+[@@deriving show]
+
+type input_media_photo = {
+  _type: string;
+  media: string;
+  thumbnail: string option;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list option;
+  show_caption_above_media: bool option;
+  has_spoiler: bool option;
+}
+[@@deriving show]
+
+type input_media_video = {
+  _type: string;
+  media: string;
+  thumbnail: string option;
+  cover: string option;
+  start_timestamp: int option;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list option;
+  show_caption_above_media: bool option;
+  width: int option;
+  height: int option;
+  duration: int option;
+  supports_streaming: bool option;
+  has_spoiler: bool option;
+}
+[@@deriving show]
+
+type input_media =
+  | InputMediaAnimation of input_media_animation
+  | InputMediaDocument of input_media_document
+  | InputMediaAudio of input_media_audio
+  | InputMediaPhoto of input_media_photo
+  | InputMediaVideo of input_media_video
+[@@deriving show]

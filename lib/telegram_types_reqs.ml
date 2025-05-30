@@ -658,6 +658,136 @@ type unpin_all_general_forum_topic_messages = {
 }
 [@@deriving show]
 
+type answer_callback_query = {
+  callback_query_id: string;
+  text: string option;
+  show_alert: bool option;
+  url: string option;
+  cache_time: int option;
+}
+[@@deriving show]
+
+type get_user_chat_boosts = {
+  chat_id: target_chat;
+  user_id: int64;
+}
+[@@deriving show]
+
+type get_business_connection = {
+  business_connection_id: string;
+}
+[@@deriving show]
+
+type set_my_commands = {
+  commands: bot_command list;
+  scope: bot_command_scope option;
+  language_code: string option;
+}
+[@@deriving show]
+
+type delete_my_commands = {
+  scope: bot_command_scope option;
+  language_code: string option;
+}
+[@@deriving show]
+
+type get_my_commands = {
+  scope: bot_command_scope option;
+  language_code: string option;
+}
+[@@deriving show]
+
+type set_my_name = {
+  name: string option;
+  language_code: string option;
+}
+[@@deriving show]
+
+type get_my_name = {
+  language_code: string option;
+}
+[@@deriving show]
+
+type set_my_description = {
+  description: string option;
+  language_code: string option;
+}
+[@@deriving show]
+
+type get_my_description = {
+  language_code: string option;
+}
+[@@deriving show]
+
+type set_my_short_description = {
+  short_description: string option;
+  language_code: string option;
+}
+[@@deriving show]
+
+type get_my_short_description = {
+  language_code: string option;
+}
+[@@deriving show]
+
+type set_chat_menu_button = {
+  chat_id: int option;
+  menu_button: menu_button option;
+}
+[@@deriving show]
+
+type get_chat_menu_button = {
+  chat_id: int option;
+}
+[@@deriving show]
+
+type set_my_default_administrator_rights = {
+  rights: chat_administrator_rights option;
+  for_channels: bool option;
+}
+[@@deriving show]
+
+type get_my_default_administrator_rights = {
+  for_channels: bool option;
+}
+[@@deriving show]
+
+type edit_message_text = {
+  business_connection_id: string option;
+  chat_id: target_chat option;
+  message_id: int option;
+  inline_message_id: string option;
+  text: string;
+  parse_mode: formatting_option option;
+  entities: message_entity list option;
+  link_preview_options: link_preview_options option;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
+type edit_message_caption = {
+  business_connection_id: string option;
+  chat_id: target_chat option;
+  message_id: int option;
+  inline_message_id: string option;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list option;
+  show_caption_above_media: bool option;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
+type edit_message_media = {
+  business_connection_id: string option;
+  chat_id: target_chat option;
+  message_id: int option;
+  inline_message_id: string option;
+  media: input_media;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
 type delete_message = {
   chat_id : target_chat;
   message_id: message_id;
