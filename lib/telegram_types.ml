@@ -1539,3 +1539,207 @@ type input_media =
   | InputMediaPhoto of input_media_photo
   | InputMediaVideo of input_media_video
 [@@deriving show]
+
+type gift = {
+  id: string;
+  sticker: sticker;
+  star_count: int;
+  upgrade_star_count: int option;
+  total_count: int option;
+  remaining_count: int option;
+}
+[@@deriving show]
+
+type unique_gift_model = {
+  name: string;
+  sticker: sticker;
+  rarity_per_mille: int;
+}
+[@@deriving show]
+
+type unique_gift_symbol = {
+  name: string;
+  sticker: sticker;
+  rarity_per_mille: int;
+}
+[@@deriving show]
+
+type unique_gift_backdrop_colors = {
+  center_color: int;
+  edge_color: int;
+  symbol_color: int;
+  text_color: int;
+}
+[@@deriving show]
+
+type unique_gift_backdrop = {
+  name: string;
+  colors: unique_gift_backdrop_colors;
+  rarity_per_mille: int;
+}
+[@@deriving show]
+
+type unique_gift = {
+  base_name: string;
+  name: string;
+  number: int;
+  model: unique_gift_model;
+  symbol: unique_gift_symbol;
+  backdrop: unique_gift_backdrop;
+}
+[@@deriving show]
+
+type gifts = { gifts : gift list } [@@deriving show]
+
+type input_profile_photo_static = {
+  _type: string;
+  photo: string;
+}
+[@@deriving show]
+
+type input_profile_photo_animated = {
+  _type: string;
+  animation: string;
+  main_frame_timestamp: float option;
+}
+[@@deriving show]
+
+type input_profile_photo =
+  | InputProfilePhotoStatic of input_profile_photo_static
+  | InputProfilePhotoAnimated of input_profile_photo_animated
+[@@deriving show]
+
+type star_amount = { 
+  amount: int;
+  nanostar_amount: int option;
+}
+[@@deriving show]
+
+type owned_gift_regular = {
+  _type: string;
+  gift: gift;
+  owned_gift_id: string option;
+  sender_user: user option;
+  send_date: int;
+  text: string option;
+  entities: message_entity list option;
+  is_private: bool option;
+  is_saved: bool option;
+  can_be_upgraded: bool option;
+  was_refunded: bool option;
+  convert_star_count: int option;
+  prepaid_upgrade_star_count: int option;
+}
+[@@deriving show]
+
+type owned_gift_unique = {
+  _type: string;
+  gift: unique_gift;
+  owned_gift_id: string option;
+  sender_user: user option;
+  send_date: int;
+  is_saved: bool option;
+  can_be_transferred: bool option;
+  transfer_star_count: int option;
+}
+[@@deriving show]
+
+type owned_gift =
+  | OwnedGiftRegular of owned_gift_regular
+  | OwnedGiftUnique of owned_gift_unique
+[@@deriving show]
+
+type owned_gifts = {
+  total_count: int;
+  gifts: owned_gift list;
+  next_offset: string;
+}
+[@@deriving show]
+
+type input_story_content_photo = {
+  _type: string;
+  photo: string;
+}
+[@@deriving show]
+
+type input_story_content_video = {
+  _type: string;
+  video: string;
+  duration: float;
+  cover_frame_timestamp: float option;
+  is_animation: bool option;
+}
+[@@deriving show]
+
+type input_story_content =
+  | InputStoryContentPhoto of input_story_content_photo
+  | InputStoryContentVideo of input_story_content_video
+[@@deriving show]
+
+type story_area_position = {
+  x_percentage: float;
+  y_percentage: float;
+  width_percentage: float;
+  height_percentage: float;
+  rotation_angle: float;
+  corner_radius_percentage: float;
+}
+[@@deriving show]
+
+type location_address = {
+  country_code: string;
+  state: string option;
+  city: string option;
+  street: string option;
+}
+[@@deriving show]
+
+type story_area_type_location = {
+  _type: string;
+  latitude: float;
+  longtitude: float;
+  address: location_address;
+}
+[@@deriving show]
+
+type story_area_type_suggested_reaction = {
+  _type: string;
+  reaction_type: reaction_type;
+  is_dark: bool option;
+  is_flipped: bool option;
+}
+[@@deriving show]
+
+type story_area_type_link = {
+  _type: string;
+  url: string;
+}
+[@@deriving show]
+
+type story_area_type_weather = {
+  _type: string;
+  temperature: float;
+  emoji: string;
+  background_color: int;
+}
+[@@deriving show]
+
+type story_area_type_unique_gift = {
+  _type: string;
+  name: string;
+}
+[@@deriving show]
+
+type story_area_type =
+  | StoryAreaTypeLocation of story_area_type_location
+  | StoryAreaTypeSuggestedReaction of story_area_type_suggested_reaction
+  | StoryAreaTypeLink of story_area_type_link
+  | StoryAreaTypeWeather of story_area_type_weather
+  | StoryAreaTypeUniqueGift of story_area_type_unique_gift
+[@@deriving show]
+
+type story_area = {
+  position: story_area_position;
+  _type: story_area_type;
+}
+[@@deriving show]

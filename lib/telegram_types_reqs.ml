@@ -788,8 +788,229 @@ type edit_message_media = {
 }
 [@@deriving show]
 
+type edit_message_live_location = {
+  business_connection_id: string option;
+  chat_id: target_chat option;
+  message_id: int option;
+  inline_message_id: int option;
+  latitude: float;
+  longtitude: float;
+  live_period: int option;
+  horizontal_accuracy: float option;
+  heading: int option;
+  proximity_alert_radius: int option;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
+type stop_message_live_location = {
+  business_connection_id: string option;
+  chat_id: target_chat option;
+  message_id: int option;
+  inline_message_id: int option;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
+type edit_message_reply_markup = {
+  business_connection_id: string option;
+  chat_id: target_chat option;
+  message_id: int option;
+  inline_message_id: string option;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
+type stop_poll = {
+  business_connection_id: string option;
+  chat_id: target_chat;
+  message_id: int;
+  reply_markup: inline_keyboard_markup option;
+}
+[@@deriving show]
+
 type delete_message = {
   chat_id : target_chat;
   message_id: message_id;
+}
+[@@deriving show]
+
+type delete_messages = {
+  chat_id: target_chat;
+  message_ids: int list;
+}
+[@@deriving show]
+
+type get_available_gifts = GetAvailableGifts
+[@@deriving show]
+
+type send_gift = {
+  user_id: int64 option;
+  chat_id: target_chat option;
+  gift_id: string;
+  pay_for_upgrade: bool option;
+  text: string option;
+  text_parse_mode: formatting_option option;
+  text_entities: message_entity list option;
+}
+[@@deriving show]
+
+type gift_premium_subscription = {
+  user_id: int64;
+  month_count: int;
+  star_count: int;
+  text: string option;
+  text_parse_mode: formatting_option option;
+  text_entities: message_entity list option;
+}
+[@@deriving show]
+
+type verify_user = {
+  user_id: int64;
+  custom_description: string option;
+}
+[@@deriving show]
+
+type verify_chat = {
+  chat_id: target_chat;
+  custom_description: string option;
+}
+[@@deriving show]
+
+type remove_user_verification = {
+  user_id: int64;
+}
+[@@deriving show]
+
+type remove_chat_verification = {
+  chat_id: target_chat;
+}
+[@@deriving show]
+
+type read_business_message = {
+  business_connection_id: string;
+  chat_id: int64;
+  message_id: int;
+}
+[@@deriving show]
+
+type delete_business_messages = {
+  business_connection_id: string;
+  message_ids: int list;
+}
+[@@deriving show]
+
+type set_business_account_name = {
+  business_connection_id: string;
+  first_name: string;
+  last_name: string option;
+}
+[@@deriving show]
+
+type set_business_account_username = {
+  business_connection_id: string;
+  username: string option;
+}
+[@@deriving show]
+
+type set_business_account_bio = {
+  business_connection_id: string;
+  bio: string option;
+}
+[@@deriving show]
+
+type set_business_account_profile_photo = {
+  business_connection_id: string;
+  photo: input_profile_photo option;
+  is_public: bool option;
+}
+[@@deriving show]
+
+type remove_business_account_profile_photo = {
+  business_connection_id: string;
+  is_public: bool option;
+}
+[@@deriving show]
+
+type set_business_account_gift_settings = {
+  business_connection_id: string;
+  show_gift_button: bool;
+  accepted_gift_types: accepted_gift_types;
+}
+[@@deriving show]
+
+type get_business_account_star_balance = {
+  business_connection_id: string;
+}
+[@@deriving show]
+
+type transfer_business_account_stars = {
+  business_connection_id: string;
+  star_count: int;
+}
+[@@deriving show]
+
+type get_business_account_gifts = {
+  business_connection_id: string;
+  exclude_unsaved: bool option;
+  exclude_saved: bool option;
+  exclude_unlimited: bool option;
+  exclude_limited: bool option;
+  exclude_unique: bool option;
+  sort_by_price: bool option;
+  offset: string option;
+  limit: int option;
+}
+[@@deriving show]
+
+type convert_gift_to_stars = {
+  business_connection_id: string;
+  owned_gift_id: string;
+}
+[@@deriving show]
+
+type upgrade_gift = {
+  business_connection_id: string;
+  owned_gift_id: string;
+  keep_original_details: bool option;
+  star_count: int option;
+}
+[@@deriving show]
+
+type transfer_gift = {
+  business_connection_id: string;
+  owned_gift_id: string;
+  new_owner_chat_id: int64;
+  star_count: int option;
+}
+[@@deriving show]
+
+type post_story = {
+  business_connection_id: string;
+  content: input_story_content;
+  active_period: int;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list;
+  areas: story_area list option;
+  post_to_chat_page: bool option;
+  protect_content: bool option;
+}
+[@@deriving show]
+
+type edit_story = {
+  business_connection_id: string;
+  story_id: int;
+  content: input_story_content;
+  caption: string option;
+  parse_mode: formatting_option option;
+  caption_entities: message_entity list;
+  areas: story_area list option;
+}
+[@@deriving show]
+
+type delete_story = {
+  business_connection_id: string;
+  story_id: int;
 }
 [@@deriving show]

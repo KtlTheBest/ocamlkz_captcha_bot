@@ -116,6 +116,31 @@ type message_or_true_res =
   | Error of string
 [@@deriving show]
 
+type poll_res = 
+  | Poll of poll
+  | Error of string
+[@@deriving show]
+
+type gifts_res =
+  | Gifts of gifts
+  | Error of string
+[@@deriving show]
+
+type star_amount_res =
+  | StarAmount of star_amount
+  | Error of string
+[@@deriving show]
+
+type owned_gifts_res =
+  | OwnedGifts of owned_gifts
+  | Error of string
+[@@deriving show]
+
+type story_res =
+  | Story of story
+  | Error of string
+[@@deriving show]
+
 type send_message = message_res
 [@@deriving show]
 
@@ -363,4 +388,94 @@ type edit_message_caption = message_or_true_res
 [@@deriving show]
 
 type edit_message_media = message_or_true_res
+[@@deriving show]
+
+type edit_message_live_location = message_or_true_res
+[@@deriving show]
+
+type stop_message_live_location = message_or_true_res
+[@@deriving show]
+
+type edit_message_reply_markup = message_or_true_res
+[@@deriving show]
+
+type stop_poll = poll_res
+[@@deriving show]
+
+type delete_message = true_res
+[@@deriving show]
+
+type delete_messages = true_res
+[@@deriving show]
+
+type get_available_gifts = gifts_res
+[@@deriving show]
+
+type send_gift = true_res
+[@@deriving show]
+
+type gift_premium_subscription = true_res
+[@@deriving show]
+
+type verify_user = true_res
+[@@deriving show]
+
+type verify_chat = true_res
+[@@deriving show]
+
+type remove_user_verification = true_res
+[@@deriving show]
+
+type remove_chat_verification = true_res
+[@@deriving show]
+
+type read_business_message = true_res
+[@@deriving show]
+
+type delete_business_messages = true_res
+[@@deriving show]
+
+type set_business_account_name = true_res
+[@@deriving show]
+
+type set_business_account_username = true_res
+[@@deriving show]
+
+type set_business_account_bio = true_res
+[@@deriving show]
+
+type set_business_account_profile_photo = true_res
+[@@deriving show]
+
+type remove_business_acccount_profile_photo = true_res
+[@@deriving show]
+
+type set_business_account_gift_settings = true_res
+[@@deriving show]
+
+type get_business_account_star_balance = star_amount_res
+[@@deriving show]
+
+type transfer_business_account_stars = true_res
+[@@deriving show]
+
+type get_business_account_gifts = owned_gifts_res
+[@@deriving show]
+
+type convert_gift_to_stars = true_res
+[@@deriving show]
+
+type upgrade_gift = true_res
+[@@deriving show]
+
+type transfer_gift = true_res
+[@@deriving show]
+
+type post_story = story_res
+[@@deriving show]
+
+type edit_story = story_res
+[@@deriving show]
+
+type delete_story = true_res
 [@@deriving show]
