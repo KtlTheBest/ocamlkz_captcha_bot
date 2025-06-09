@@ -831,7 +831,7 @@ type stop_poll = {
 
 type delete_message = {
   chat_id : target_chat;
-  message_id: message_id;
+  message_id: int;
 }
 [@@deriving show]
 
@@ -1012,5 +1012,116 @@ type edit_story = {
 type delete_story = {
   business_connection_id: string;
   story_id: int;
+}
+[@@deriving show]
+
+type send_sticker = {
+  business_connection_id: string option;
+  chat_id: target_chat;
+  message_thread_id: int option;
+  sticker: input_file_or_string_type;
+  emoji: string option;
+  disable_notification: bool option;
+  protect_content: bool option;
+  allow_paid_broadcast: bool option;
+  message_effect_id: string option;
+  reply_parameters: reply_parameters option;
+  reply_markup: reply_markup_type option;
+}
+[@@deriving show]
+
+type get_sticker_set = {
+  name: string
+}
+[@@deriving show]
+
+type get_custom_emoji_stickers = {
+  custom_emoji_ids: string list;
+}
+[@@deriving show]
+
+type upload_sticker_file = {
+  user_id: int64;
+  sticker: input_file;
+  sticker_format: string;
+}
+[@@deriving show]
+
+type create_new_sticker_set = {
+  user_id: int64;
+  name: string;
+  title: string;
+  stickers: input_sticker list;
+  sticker_type: string option;
+  needs_repainting: bool option;
+}
+[@@deriving show]
+
+type add_sticker_to_set = {
+  user_id: int64;
+  name: string;
+  sticker: input_sticker;
+}
+[@@deriving show]
+
+type set_sticker_position_in_set = {
+  sticker: string;
+  position: int;
+}
+[@@deriving show]
+
+type delete_sticker_from_set = {
+  sticker: string;
+}
+[@@deriving show]
+
+type replace_sticker_in_set = {
+  user_id: int;
+  name: string;
+  old_sticker: string;
+  sticker: input_sticker;
+}
+[@@deriving show]
+
+type set_sticker_emoji_list = {
+  sticker: string;
+  emoji_list: string list;
+}
+[@@deriving show]
+
+type set_sticker_keywords = {
+  sticker: string;
+  keywords: string list;
+}
+[@@deriving show]
+
+type set_sticker_mask_position = {
+  sticker: string;
+  mask_position: mask_position option;
+}
+[@@deriving show]
+
+type set_sticker_set_title = {
+  name: string;
+  title: string;
+}
+[@@deriving show]
+
+type set_sticker_set_thumbnail = {
+  name: string;
+  user_id: int;
+  thumbnail: input_file_or_string_type option;
+  format: string;
+}
+[@@deriving show]
+
+type set_custom_emoji_sticker_set_thumbnail = {
+  name: string;
+  custom_emoji_id: string option;
+}
+[@@deriving show]
+
+type delete_sticker_set = {
+  name: string
 }
 [@@deriving show]

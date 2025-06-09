@@ -243,9 +243,9 @@ let () =
       |> as_markdownv2
       |> with_keyboard keyboard
     ) >>= fun res ->
-    let res' = res.result in
-    match res' with
-    | Some(Message(m)) ->
+    match res with
+    | Error _ -> return ()
+    | Message(m) ->
       let get_combo () =
         let id = m.message_id in
         let user_id = new_user.id in
@@ -318,8 +318,6 @@ let () =
       add_unverified_user ();
       add_new_timer ();
       return ()
-    | None -> return ()
-    | _ -> return ()
     (* Lwt_io.printf "%s" (show_return_type res) *)
   in 
 

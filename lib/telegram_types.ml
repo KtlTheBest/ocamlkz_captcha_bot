@@ -267,6 +267,15 @@ type sticker = {
 }
 [@@deriving show]
 
+type sticker_set = {
+  name: string;
+  title: string;
+  sticker_type: sticker_type;
+  stickers: sticker list;
+  thumbnail: photosize option;
+}
+[@@deriving show]
+
 type story = {
   chat: chat;
   id: int;
@@ -1221,9 +1230,14 @@ type reply_markup_type =
 type message_id = int64
 [@@deriving show]
 
+let int64_of_message_id (x : message_id) : int64 = x
+
+type input_file = string
+[@@deriving show]
+
 type input_file_or_string_type =
   | String of string
-  | InputFile of string
+  | InputFile of input_file
 [@@deriving show]
 
 type input_poll_option = {
@@ -1741,5 +1755,14 @@ type story_area_type =
 type story_area = {
   position: story_area_position;
   _type: story_area_type;
+}
+[@@deriving show]
+
+type input_sticker = {
+  sticker: string;
+  format: string;
+  emoji_list: string list;
+  mask_position: mask_position option;
+  keywords: string list option;
 }
 [@@deriving show]

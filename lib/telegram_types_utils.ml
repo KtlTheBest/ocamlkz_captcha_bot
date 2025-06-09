@@ -1,5 +1,8 @@
 open Telegram_types
 
+module RQ = Telegram_types_reqs
+module RS = Telegram_types_resps
+
 let assoc_to_json l : Yojson.Safe.t =
   let l' = List.fold_left (@) [] l in
   `Assoc l'
@@ -548,7 +551,7 @@ let reply_markup_to_yojson rmk =
   | ReplyKeyboardRemove(rkr) -> reply_keyboard_remove_to_yojson rkr
   | ForceReply(fr) -> force_reply_to_yojson fr
 
-let send_message_request_to_yojson (sm : send_message_type) : Yojson.Safe.t =
+let send_message_request_to_yojson (sm : RQ.send_message) : Yojson.Safe.t =
   let chat_id =
     match sm.chat_id with
     | Chat(i) -> [("chat_id", `Intlit (BatInt64.to_string i))]
@@ -625,7 +628,7 @@ let send_message_request_to_yojson (sm : send_message_type) : Yojson.Safe.t =
     reply_markup_keyboard;
   ]
 
-let delete_message_request_to_yojson (dm : delete_message_type) : Yojson.Safe.t =
+let delete_message_request_to_yojson (dm : RQ.delete_message) : Yojson.Safe.t =
   let chat_id =
     match dm.chat_id with
     | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))]
@@ -637,7 +640,7 @@ let delete_message_request_to_yojson (dm : delete_message_type) : Yojson.Safe.t 
     message_id;
   ]
 
-let ban_chat_member_request_to_yojson (bcm : ban_chat_member_type) : Yojson.Safe.t =
+let ban_chat_member_request_to_yojson (bcm : RQ.ban_chat_member) : Yojson.Safe.t =
   let chat_id =
     match bcm.chat_id with
     | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))]

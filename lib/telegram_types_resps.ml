@@ -1,24 +1,47 @@
 open Telegram_types
 
+let interpret_err err : string =
+  BatOption.get err
+
 type true_res =
   | True
   | Error of string
 [@@deriving show]
+
+let true_res_of ok error _ =
+  match ok with
+  | true -> True
+  | false -> Error (interpret_err error)
 
 type int_res = 
   | Int of int
   | Error of string
 [@@deriving show]
 
+let int_res_of ok error result =
+  match ok with
+  | true -> Int (BatOption.get result)
+  | false -> Error (interpret_err error)
+
 type string_res =
   | String of string
   | Error of string
 [@@deriving show]
 
+let string_res_of ok error result =
+  match ok with
+  | true -> String (BatOption.get result)
+  | false -> Error (interpret_err error)
+
 type message_res =
-  | Message of string
+  | Message of message
   | Error of string
 [@@deriving show]
+
+let message_res_of ok error result : message_res =
+  match ok with
+  | true -> Message (BatOption.get result)
+  | false -> Error (interpret_err error)
 
 type message_list_res = 
   | MessageList of message list
@@ -138,6 +161,11 @@ type owned_gifts_res =
 
 type story_res =
   | Story of story
+  | Error of string
+[@@deriving show]
+
+type sticker_set_res =
+  | StickerSet of sticker_set
   | Error of string
 [@@deriving show]
 
@@ -478,4 +506,52 @@ type edit_story = story_res
 [@@deriving show]
 
 type delete_story = true_res
+[@@deriving show]
+
+type send_sticker = message_res
+[@@deriving show]
+
+type get_sticker_set = sticker_set_res
+[@@deriving show]
+
+type get_custom_emoji_stickers = sticker_list_res
+[@@deriving show]
+
+type upload_sticker_file = file_res
+[@@deriving show]
+
+type create_new_sticker_set = true_res
+[@@deriving show]
+
+type add_sticker_to_set = true_res
+[@@deriving show]
+
+type set_sticker_position_in_set = true_res
+[@@deriving show]
+
+type delete_sticker_from_set = true_res
+[@@deriving show]
+
+type replace_sticker_in_set = true_res
+[@@deriving show]
+
+type set_sticker_emoji_list = true_res
+[@@deriving show]
+
+type set_sticker_keywords = true_res
+[@@deriving show]
+
+type set_sticker_mask_position = true_res
+[@@deriving show]
+
+type set_sticker_set_title = true_res
+[@@deriving show]
+
+type set_sticker_set_thumbnail = true_res
+[@@deriving show]
+
+type set_custom_emoji_sticker_set_thumbnail = true_res
+[@@deriving show]
+
+type delete_sticker_set = true_res
 [@@deriving show]
