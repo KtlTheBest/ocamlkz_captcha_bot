@@ -1,6 +1,7 @@
 open Telegram_types
 
 type send_message = {
+  business_connection_id: string option;
   chat_id: target_chat;
   text: string;
   message_thread_id: int option;

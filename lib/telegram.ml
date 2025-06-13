@@ -122,6 +122,7 @@ module SendMessage = struct
   
   let send_message_req_of (msg : Telegram_types.message) : rsm =
     let open Telegram_types in
+    let business_connection_id = None in
     let chat_id = Chat(msg.chat.id) in
     let text = "" in
     let message_thread_id = None in
@@ -134,7 +135,8 @@ module SendMessage = struct
     let message_effect_id = None in
     let reply_parameters = None in
     let reply_markup = None in
-    { chat_id
+    { business_connection_id
+    ; chat_id
     ; text
     ; message_thread_id
     ; parse_mode
@@ -150,6 +152,7 @@ module SendMessage = struct
   
   let send_message_to (chat : Telegram_types.chat) : rsm =
     let open Telegram_types in
+    let business_connection_id = None in
     let chat_id = Chat(chat.id) in
     let text = "" in
     let message_thread_id = None in
@@ -162,7 +165,8 @@ module SendMessage = struct
     let message_effect_id = None in
     let reply_parameters = None in
     let reply_markup = None in
-    { chat_id
+    { business_connection_id
+    ; chat_id
     ; text
     ; message_thread_id
     ; parse_mode
@@ -178,6 +182,7 @@ module SendMessage = struct
   
   let send_message_to_chat_of_instance (chat_instance : BatInt64.t) : rsm =
     let open Telegram_types in
+    let business_connection_id = None in
     let chat_id = Chat(chat_instance) in
     let text = "" in
     let message_thread_id = None in
@@ -190,7 +195,8 @@ module SendMessage = struct
     let message_effect_id = None in
     let reply_parameters = None in
     let reply_markup = None in
-    { chat_id
+    { business_connection_id
+    ; chat_id
     ; text
     ; message_thread_id
     ; parse_mode

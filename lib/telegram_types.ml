@@ -1119,7 +1119,6 @@ type target_chat =
 [@@deriving show]
 
 type formatting_option =
-  | NoFormat
   | MarkDown
   | MarkDownV2
   | Html

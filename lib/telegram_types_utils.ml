@@ -9,10 +9,9 @@ let assoc_to_json l : Yojson.Safe.t =
 
 let formatting_option_to_yojson_string x =
   match x with
-  | NoFormat -> None
-  | MarkDown -> Some(`String "Markdown")
-  | MarkDownV2 -> Some(`String "MarkdownV2")
-  | Html -> Some(`String "HTML")
+  | MarkDown -> `String "Markdown"
+  | MarkDownV2 -> `String "MarkdownV2"
+  | Html -> `String "HTML"
 
 let message_entity_type_to_yojson = function
   | Mention -> `String "mention"
@@ -136,11 +135,7 @@ let reply_parameters_to_yojson (rp : reply_parameters) =
     match rp.quote_parse_mode with
     | None -> []
     | Some(qpm) -> 
-      (match formatting_option_to_yojson_string qpm with
-      | None -> []
-      | Some(res) ->
-        [("quote_parse_mode", res)]
-      )
+      [("quote_parse_mode", formatting_option_to_yojson_string qpm)]
   in
   let quote_entities =
     match rp.quote_entities with
@@ -567,9 +562,7 @@ let send_message_request_to_yojson (sm : RQ.send_message) : Yojson.Safe.t =
     match sm.parse_mode with
     | None -> []
     | Some(x) -> 
-      (match formatting_option_to_yojson_string x with
-      | None -> []
-      | Some(res) -> [("parse_mode", res)])
+      [("parse_mode", formatting_option_to_yojson_string x)]
   in
   let entities =
     match sm.entities with
