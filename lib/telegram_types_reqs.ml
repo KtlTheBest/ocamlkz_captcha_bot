@@ -24,7 +24,7 @@ type forward_message = {
   video_start_timestamp: int option;
   disable_notification: bool option;
   protect_content: bool option;
-  message_id: int;
+  message_id: message_id;
 }
 [@@deriving show]
 
@@ -69,7 +69,7 @@ type copy_messages = {
 type send_photo = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   photo: input_file_or_string_type;
   caption: string option;
   parse_mode: formatting_option option;
@@ -88,7 +88,7 @@ type send_photo = {
 type send_audio = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   audio: input_file_or_string_type;
   caption: string option;
   parse_mode: formatting_option option;

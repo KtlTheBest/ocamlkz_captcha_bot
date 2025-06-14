@@ -1226,10 +1226,8 @@ type reply_markup_type =
   | ForceReply of force_reply
 [@@deriving show]
 
-type message_id = int64
+type message_id = int
 [@@deriving show]
-
-let int64_of_message_id (x : message_id) : int64 = x
 
 type input_file = string
 [@@deriving show]

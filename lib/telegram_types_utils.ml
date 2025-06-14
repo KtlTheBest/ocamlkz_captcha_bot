@@ -2766,3 +2766,8 @@ let update_to_ergonomic_message_update (upd : update) =
     message_to_ergonomic_message_update (get upd.message)
   else
     UnknownUpdate upd
+
+let input_file_or_string_type_to_yojson (ios : input_file_or_string_type) : Yojson.Safe.t =
+  match ios with
+  | String(s)
+  | InputFile(s) -> `String s
