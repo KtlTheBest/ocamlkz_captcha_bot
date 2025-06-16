@@ -48,6 +48,7 @@ let link_preview_options_to_yojson = Telegram_types_utils.link_preview_options_t
 let reply_parameters_to_yojson = Telegram_types_utils.reply_parameters_to_yojson
 let reply_markup_type_to_yojson = Telegram_types_utils.reply_markup_to_yojson
 let input_file_or_string_type_to_yojson = Telegram_types_utils.input_file_or_string_type_to_yojson
+let input_file_or_string_type_list_to_yojson x : t = `List (List.map input_file_or_string_type_to_yojson x)
 
 let bool_to_yojson_l = to_wrap_l bool_to_yojson
 let int_to_yojson_l = to_wrap_l int_to_yojson
@@ -61,6 +62,7 @@ let reply_parameters_to_yojson_l = to_wrap_l reply_parameters_to_yojson
 let reply_markup_type_to_yojson_l = to_wrap_l reply_markup_type_to_yojson
 let true_to_yojson_l = to_wrap_l true_to_yojson
 let input_file_or_string_type_to_yojson_l = to_wrap_l input_file_or_string_type_to_yojson
+let input_file_or_string_type_list_to_yojson_l = to_wrap_l input_file_or_string_type_list_to_yojson
 
 let bool_option_to_yojson_l = lift_opt bool_to_yojson_l
 let int_option_to_yojson_l = lift_opt int_to_yojson_l
@@ -72,6 +74,7 @@ let reply_parameters_option_t_to_yojson_l = lift_opt reply_parameters_to_yojson_
 let reply_markup_type_option_to_yojson_l = lift_opt reply_markup_type_to_yojson_l
 let true_option_to_yojson_l = lift_opt true_to_yojson_l
 let input_file_or_string_type_option_to_yojson_l = lift_opt input_file_or_string_type_to_yojson_l
+let input_file_or_string_type_list_option_to_yojson_l = lift_opt input_file_or_string_type_list_to_yojson_l
 
 let business_connection_id_option_to_yojson_l bci = string_option_to_yojson_l "business_connection_id" bci
 let chat_id_to_yojson_l c_id = target_chat_to_yojson_l "chat_id" c_id
@@ -103,6 +106,20 @@ let duration_option_to_yojson_l d = int_option_to_yojson_l "duration" d
 let performer_option_to_yojson_l p = string_option_to_yojson_l "performer" p
 let title_option_to_yojson_l t = string_option_to_yojson_l "title" t
 let thumbnail_option_to_yojson_l t = input_file_or_string_type_option_to_yojson_l "thumbnail" t
+let document_to_yojson_l d = input_file_or_string_type_to_yojson_l "document" d
+let disable_content_type_detection_option_to_yojson_l d = bool_option_to_yojson_l "disable_content_type_detection" d
+let video_to_yojson_l v = input_file_or_string_type_to_yojson_l "video" v
+let animation_to_yojson_l a = input_file_or_string_type_to_yojson_l "animation" a
+let width_option_to_yojson_l w = int_option_to_yojson_l "width" w
+let height_option_to_yojson_l h = int_option_to_yojson_l "height" h
+let cover_option_to_yojson_l c = input_file_or_string_type_option_to_yojson_l "cover" c
+let start_timestamp_option_to_yojson_l st = int_option_to_yojson_l "start_timestamp" st
+let voice_to_yojson_l v = input_file_or_string_type_to_yojson_l "voice" v
+let video_note_to_yojson_l v = input_file_or_string_type_to_yojson_l "video_note" v
+let length_option_to_yojson_l l = int_option_to_yojson_l "length" l
+let star_count_to_yojson_l sc = int_to_yojson_l "star_count" sc
+let media_to_yojson_l m = input_file_or_string_type_list_to_yojson_l "media" m
+let payload_option_to_yojson_l p = string_option_to_yojson_l "payload" p
 
 let send_message_to_yojson (sm: send_message) : t =
   let business_connection_id = business_connection_id_option_to_yojson_l sm.business_connection_id in
@@ -286,6 +303,224 @@ let send_audio_to_yojson (sa : send_audio) : t =
   ; protect_content
   ; allow_paid_broadcast
   ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_document_to_yojson (sd : send_document) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l sd.business_connection_id in
+  let chat_id = chat_id_to_yojson_l sd.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l sd.message_thread_id in
+  let document = document_to_yojson_l sd.document in
+  let thumbnail = thumbnail_option_to_yojson_l sd.thumbnail in
+  let caption = caption_option_to_yojson_l sd.caption in
+  let disable_content_type_detection = disable_content_type_detection_option_to_yojson_l sd.disable_content_type_detection in
+  let disable_notification = disable_notification_option_to_yojson_l sd.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l sd.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l sd.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l sd.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l sd.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l sd.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; document
+  ; thumbnail
+  ; caption
+  ; disable_content_type_detection
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_video_to_yojson (x : send_video) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let video = video_to_yojson_l x.video in
+  let duration = duration_option_to_yojson_l x.duration in
+  let width = width_option_to_yojson_l x.width in
+  let height = height_option_to_yojson_l x.height in
+  let thumbnail = thumbnail_option_to_yojson_l x.thumbnail in
+  let cover = cover_option_to_yojson_l x.cover in
+  let start_timestamp = start_timestamp_option_to_yojson_l x.start_timestamp in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let show_caption_above_media = show_caption_above_media_option_to_yojson_l x.show_caption_above_media in
+  let disable_content_type_detection = disable_content_type_detection_option_to_yojson_l x.disable_content_type_detection in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in 
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; video
+  ; duration
+  ; width
+  ; height
+  ; thumbnail
+  ; cover
+  ; start_timestamp
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; disable_content_type_detection
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_animation (x : send_animation) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let animation = animation_to_yojson_l x.animation in
+  let duration = duration_option_to_yojson_l x.duration in
+  let width = width_option_to_yojson_l x.width in
+  let height = height_option_to_yojson_l x.height in
+  let thumbnail = thumbnail_option_to_yojson_l x.thumbnail in
+  let cover = cover_option_to_yojson_l x.cover in
+  let start_timestamp = start_timestamp_option_to_yojson_l x.start_timestamp in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let show_caption_above_media = show_caption_above_media_option_to_yojson_l x.show_caption_above_media in
+  let disable_content_type_detection = disable_content_type_detection_option_to_yojson_l x.disable_content_type_detection in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in 
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; animation
+  ; duration
+  ; width
+  ; height
+  ; thumbnail
+  ; cover
+  ; start_timestamp
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; disable_content_type_detection
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_voice (x : send_voice) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let voice = voice_to_yojson_l x.voice in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let duration = duration_option_to_yojson_l x.duration in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in 
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; voice
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; duration
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_video_note_to_yojson (x : send_video_note) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let video_note = video_note_to_yojson_l x.video_note in
+  let duration = duration_option_to_yojson_l x.duration in
+  let length = length_option_to_yojson_l x.length in
+  let thumbnail = thumbnail_option_to_yojson_l x.thumbnail in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in 
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; video_note
+  ; duration
+  ; length
+  ; thumbnail
+  ; parse_mode
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_paid_media_to_yojson (x : send_paid_media) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let star_count = star_count_to_yojson_l x.star_count in
+  let media = media_to_yojson_l x.media in
+  let payload = payload_option_to_yojson_l x.payload in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let show_caption_above_media = show_caption_above_media_option_to_yojson_l x.show_caption_above_media in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in 
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; star_count
+  ; media
+  ; payload
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
   ; reply_parameters
   ; reply_markup
   ]

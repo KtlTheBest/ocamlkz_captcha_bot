@@ -109,7 +109,7 @@ type send_audio = {
 type send_document = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   document: input_file_or_string_type;
   thumbnail: input_file_or_string_type option;
   caption: string option;
@@ -128,7 +128,7 @@ type send_document = {
 type send_video = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   video: input_file_or_string_type;
   duration: int option;
   width: int option;
@@ -153,7 +153,7 @@ type send_video = {
 type send_animation = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   animation: input_file_or_string_type;
   duration: int option;
   width: int option;
@@ -178,7 +178,7 @@ type send_animation = {
 type send_voice = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   voice: input_file_or_string_type;
   caption: string option;
   parse_mode: formatting_option option;
@@ -196,7 +196,7 @@ type send_voice = {
 type send_video_note = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   video_note: input_file_or_string_type;
   duration: int option;
   length: int option;
