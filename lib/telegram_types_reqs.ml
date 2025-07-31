@@ -244,7 +244,7 @@ type send_media_group = {
 type send_location = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   latitude: float;
   longtitude: float;
   horizontal_accuracy: float option;
@@ -263,7 +263,7 @@ type send_location = {
 type send_venue = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   latitude: float;
   longtitude: float;
   title: string;
@@ -284,7 +284,7 @@ type send_venue = {
 type send_contact = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   phone_number: string;
   first_name: string;
   last_name: string option;
@@ -301,7 +301,7 @@ type send_contact = {
 type send_poll = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   question: string;
   question_parse_mode: formatting_option option;
   question_entities: message_entity list option;
@@ -312,7 +312,7 @@ type send_poll = {
   correct_option_id: int option;
   explanation: string option;
   explanation_parse_mode: formatting_option option;
-  explanation_entities: message_entity list;
+  explanation_entities: message_entity list option;
   open_period: int option;
   close_date: int option;
   is_closed: bool option;
@@ -328,7 +328,7 @@ type send_poll = {
 type send_dice = {
   business_connection_id: string option;
   chat_id: target_chat;
-  message_thread_id: int;
+  message_thread_id: int option;
   dice: string option;
   disable_notification: bool option;
   protect_content: bool option;

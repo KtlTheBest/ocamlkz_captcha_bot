@@ -2771,3 +2771,94 @@ let input_file_or_string_type_to_yojson (ios : input_file_or_string_type) : Yojs
   match ios with
   | String(s)
   | InputFile(s) -> `String s
+
+let input_poll_option_to_yojson (x : input_poll_option) : Yojson.Safe.t =
+  let text = [("text", `String x.text)] in
+  let text_parse_mode =
+    match x.text_parse_mode with
+    | None -> []
+    | Some(v) -> [("text_parse_mode", formatting_option_to_yojson_string v)]
+  in
+  let text_entities = 
+    match x.text_entities with
+    | None -> []
+    | Some(v) -> [("text_entities", message_entity_list_to_yojson v)]
+  in
+  assoc_to_json [text; text_parse_mode; text_entities]
+  
+let poll_type_to_yojson (x : poll_type) : Yojson.Safe.t =
+  match x with
+  | Regular -> `String "regular"
+  | Quiz -> `String "quiz"
+
+let chat_action_to_yojson (x : chat_action) : Yojson.Safe.t =
+  `String (
+    match x with
+    | Typing -> "typing"
+    | UploadPhoto -> "upload_photo"
+    | RecordVideo -> "record_video"
+    | UploadVideo -> "upload_video"
+    | RecordVoice -> "record_voice"
+    | UploadVoice -> "upload_voice"
+    | UploadDocument -> "upload_document"
+    | ChooseSticker -> "choose_sticker"
+    | FindLocation -> "find_location"
+    | RecordVideoNote -> "record_video_note"
+    | UploadVideoNote -> "upload_video_note"
+  )
+
+let reaction_type_emoji_to_yojson (x : reaction_type_emoji) : Yojson.Safe.t =
+  let _type = [("type", `String "emoji")] in
+  let emoji = [("emoji", `String x.emoji)] in
+  assoc_to_json [_type; emoji]
+
+let reaction_type_custom_emoji_to_yojson (x : reaction_type_custom_emoji) : Yojson.Safe.t =
+  let _type = [("type", `String "custom_emoji")] in
+  let custom_emoji_id = [("custom_emoji_id", `String x.custom_emoji_id)] in
+  assoc_to_json [_type; custom_emoji_id]
+
+let reaction_type_paid_to_yojson (_ : reaction_type_paid) : Yojson.Safe.t =
+  assoc_to_json [[("type", `String "paid")]]
+
+let reaction_type_to_yojson (x : reaction_type) : Yojson.Safe.t =
+  match x with
+  | ReactionTypeEmoji(v) -> reaction_type_emoji_to_yojson v
+  | ReactionTypeCustomEmoji(v) -> reaction_type_custom_emoji_to_yojson v
+  | ReactionTypePaid(v) -> reaction_type_paid_to_yojson v
+
+let chat_permissions_to_yojson (x : chat_permissions) : Yojson.Safe.t =
+  let grab s v = 
+    match v with
+    | None -> []
+    | Some(v') -> [(s, `Bool v')]
+  in
+  let can_send_messages = grab "can_send_messages" x.can_send_messages in
+  let can_send_audios = grab "can_send_audios" x.can_send_audios in
+  let can_send_documents = grab "can_send_documents" x.can_send_documents in
+  let can_send_photos = grab "can_send_photos" x.can_send_documents in
+  let can_send_videos = grab "can_send_videos" x.can_send_videos in
+  let can_send_video_notes = grab "can_send_video_notes" x.can_send_video_notes in
+  let can_send_voice_notes = grab "can_send_voice_notes" x.can_send_voice_notes in
+  let can_send_polls = grab "can_send_polls" x.can_send_polls in
+  let can_send_other_messages = grab "can_send_other_messages" x.can_send_other_messages in
+  let can_add_web_page_previews = grab "can_add_web_page_previews" x.can_add_web_page_previews in
+  let can_change_info = grab "can_change_info" x.can_change_info in
+  let can_invite_users = grab "can_invite_users" x.can_invite_users in
+  let can_pin_messages = grab "can_pin_messages" x.can_pin_messages in
+  let can_manage_topics = grab "can_manage_topics" x.can_manage_topics in
+  assoc_to_json 
+  [ can_send_messages
+  ; can_send_audios
+  ; can_send_documents
+  ; can_send_photos
+  ; can_send_videos
+  ; can_send_video_notes
+  ; can_send_voice_notes
+  ; can_send_polls
+  ; can_send_other_messages
+  ; can_add_web_page_previews
+  ; can_change_info
+  ; can_invite_users
+  ; can_pin_messages
+  ; can_manage_topics
+  ]

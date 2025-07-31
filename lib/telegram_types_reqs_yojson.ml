@@ -40,7 +40,9 @@ let target_chat_to_yojson (tc : target_chat) : t =
 let bool_to_yojson x : t = `Bool x
 let true_to_yojson () = bool_to_yojson true
 let int_to_yojson x : t = `Int x
+let int64_to_yojson x : t = `Intlit (BatInt64.to_string x)
 let int_list_to_yojson l : t = `List (List.map int_to_yojson l)
+let float_to_yojson x : t = `Float x
 let string_to_yojson x : t = `String x
 let formatting_option_to_yojson = Telegram_types_utils.formatting_option_to_yojson_string
 let message_entity_list_to_yojson = Telegram_types_utils.message_entity_list_to_yojson
@@ -49,10 +51,18 @@ let reply_parameters_to_yojson = Telegram_types_utils.reply_parameters_to_yojson
 let reply_markup_type_to_yojson = Telegram_types_utils.reply_markup_to_yojson
 let input_file_or_string_type_to_yojson = Telegram_types_utils.input_file_or_string_type_to_yojson
 let input_file_or_string_type_list_to_yojson x : t = `List (List.map input_file_or_string_type_to_yojson x)
+let input_poll_option_to_yojson x : t = Telegram_types_utils.input_poll_option_to_yojson x
+let input_poll_option_list_to_yojson x : t = `List (List.map input_poll_option_to_yojson x)
+let poll_type_to_yojson = Telegram_types_utils.poll_type_to_yojson
+let chat_action_to_yojson = Telegram_types_utils.chat_action_to_yojson
+let reaction_type_to_yojson = Telegram_types_utils.reaction_type_to_yojson
+let reaction_type_list_to_yojson x = `List (List.map reaction_type_to_yojson x)
+let chat_permissions_to_yojson = Telegram_types_utils.chat_permissions_to_yojson
 
 let bool_to_yojson_l = to_wrap_l bool_to_yojson
 let int_to_yojson_l = to_wrap_l int_to_yojson
 let int_list_to_yojson_l = to_wrap_l int_list_to_yojson
+let float_to_yojson_l = to_wrap_l float_to_yojson
 let string_to_yojson_l = to_wrap_l string_to_yojson
 let target_chat_to_yojson_l = to_wrap_l target_chat_to_yojson
 let formatting_option_to_yojson_l = to_wrap_l formatting_option_to_yojson 
@@ -63,9 +73,16 @@ let reply_markup_type_to_yojson_l = to_wrap_l reply_markup_type_to_yojson
 let true_to_yojson_l = to_wrap_l true_to_yojson
 let input_file_or_string_type_to_yojson_l = to_wrap_l input_file_or_string_type_to_yojson
 let input_file_or_string_type_list_to_yojson_l = to_wrap_l input_file_or_string_type_list_to_yojson
+let input_poll_option_list_to_yojson_l = to_wrap_l input_poll_option_list_to_yojson
+let poll_type_to_yojson_l = to_wrap_l poll_type_to_yojson
+let chat_action_to_yojson_l = to_wrap_l chat_action_to_yojson
+let reaction_type_list_to_yojson_l = to_wrap_l reaction_type_list_to_yojson
+let int64_to_yojson_l = to_wrap_l int64_to_yojson
+let chat_permissions_to_yojson_l = to_wrap_l chat_permissions_to_yojson
 
 let bool_option_to_yojson_l = lift_opt bool_to_yojson_l
 let int_option_to_yojson_l = lift_opt int_to_yojson_l
+let float_option_to_yojson_l = lift_opt float_to_yojson_l
 let string_option_to_yojson_l = lift_opt string_to_yojson_l
 let formatting_option_option_to_yojson_l = lift_opt formatting_option_to_yojson_l
 let message_entity_list_option_to_yojson_l = lift_opt message_entity_list_to_yojson_l
@@ -75,6 +92,12 @@ let reply_markup_type_option_to_yojson_l = lift_opt reply_markup_type_to_yojson_
 let true_option_to_yojson_l = lift_opt true_to_yojson_l
 let input_file_or_string_type_option_to_yojson_l = lift_opt input_file_or_string_type_to_yojson_l
 let input_file_or_string_type_list_option_to_yojson_l = lift_opt input_file_or_string_type_list_to_yojson_l
+let input_poll_option_list_option_to_yojson_l = lift_opt input_poll_option_list_to_yojson_l
+let poll_type_option_to_yojson_l = lift_opt poll_type_to_yojson_l
+let chat_action_option_to_yojson_l = lift_opt chat_action_to_yojson_l
+let reaction_type_list_option_to_yojson_l = lift_opt reaction_type_list_to_yojson_l
+let int64_option_to_yojson_l = lift_opt int64_to_yojson_l
+let chat_permissions_option_to_yojson_l = lift_opt chat_permissions_to_yojson_l
 
 let business_connection_id_option_to_yojson_l bci = string_option_to_yojson_l "business_connection_id" bci
 let chat_id_to_yojson_l c_id = target_chat_to_yojson_l "chat_id" c_id
@@ -120,6 +143,51 @@ let length_option_to_yojson_l l = int_option_to_yojson_l "length" l
 let star_count_to_yojson_l sc = int_to_yojson_l "star_count" sc
 let media_to_yojson_l m = input_file_or_string_type_list_to_yojson_l "media" m
 let payload_option_to_yojson_l p = string_option_to_yojson_l "payload" p
+let latitude_to_yojson x = float_to_yojson_l "latitude" x
+let longtitude_to_yojson x = float_to_yojson_l "longtitude" x
+let horizontal_accuracy_to_yojson x = float_option_to_yojson_l "horizontal_accuracy" x
+let live_period_to_yojson x = int_option_to_yojson_l "live_period" x
+let heading_to_yojson x = int_option_to_yojson_l "heading" x
+let proximity_alert_triggered_to_yojson x = int_option_to_yojson_l "proximity_alert_triggered" x
+let title_to_yojson x = string_to_yojson_l "title" x
+let address_to_yojson x = string_to_yojson_l "address" x
+let foursquare_id_option_to_yojson x = string_option_to_yojson_l "foursquare_id" x
+let foursquare_type_option_to_yojson x = string_option_to_yojson_l "foursquare_type" x
+let google_place_id_option_to_yojson x = string_option_to_yojson_l "fgoogle_place_id" x
+let google_place_type_option_to_yojson x = string_option_to_yojson_l "google_place_type" x
+let phone_number_to_yojson x = string_to_yojson_l "phone_number" x
+let first_name_to_yojson x = string_to_yojson_l "first_name" x
+let last_name_to_yojson x = string_option_to_yojson_l "last_name" x
+let vcard_to_yojson x = string_option_to_yojson_l "vcard" x
+let question_to_yojson x = string_to_yojson_l "question" x
+let question_parse_mode_to_yojson x = formatting_option_option_to_yojson_l "question_parse_mode" x
+let question_entities_to_yojson x = message_entity_list_option_to_yojson_l "question_entities" x
+let options_to_yojson x = input_poll_option_list_to_yojson_l "options" x
+let is_anonymous_to_yojson x = bool_option_to_yojson_l "is_anonymous" x
+let poll_type_to_yojson x = poll_type_option_to_yojson_l "_type" x
+let allows_multiple_answers_to_yojson x = bool_option_to_yojson_l "allows_multiple_answers" x
+let correct_option_id_to_yojson x = int_option_to_yojson_l "correct_option_id" x
+let explanation_to_yojson x = string_option_to_yojson_l "explanation" x
+let explanation_parse_mode_to_yojson x = formatting_option_option_to_yojson_l "explanation_parse_mode" x
+let explanation_entities_to_yojson x = message_entity_list_option_to_yojson_l "explanation_entities" x
+let open_period_to_yojson x = int_option_to_yojson_l "open_period" x
+let close_date_to_yojson x = int_option_to_yojson_l "close_date" x
+let is_closed_to_yojson x = bool_option_to_yojson_l "is_closed" x
+let dice_to_yojson x = string_option_to_yojson_l "dice" x
+let action_to_yojson x = chat_action_to_yojson_l "action" x
+let reaction_to_yojson x = reaction_type_list_option_to_yojson_l "reaction" x
+let is_big_to_yojson x = bool_option_to_yojson_l "is_big" x
+let user_id_to_yojson x = int64_to_yojson_l "user_id" x
+let offset_to_yojson x = int_option_to_yojson_l "offset" x
+let limit_to_yojson x = int_option_to_yojson_l "limit" x
+let emoji_status_custom_emoji_id_to_yojson x = string_option_to_yojson_l "emoji_status_custom_emoji_id" x
+let emoji_status_expiration_date_to_yojson x = int_option_to_yojson_l "emoji_status_expiration_date" x
+let file_id_to_yojson x = string_to_yojson_l "file_id" x
+let until_date_to_yojson x = int_option_to_yojson_l "until_date" x
+let revoke_messages_to_yojson x = bool_option_to_yojson_l "revoke_messages" x
+let only_if_banned_to_yojson x = bool_option_to_yojson_l "only_if_banned" x
+let permissions_to_yojson x = chat_permissions_to_yojson_l "permissions" x
+let use_independent_chat_permissions_to_yojson x = bool_option_to_yojson_l "use_independent_chat_permissions" x
 
 let send_message_to_yojson (sm: send_message) : t =
   let business_connection_id = business_connection_id_option_to_yojson_l sm.business_connection_id in
@@ -523,4 +591,284 @@ let send_paid_media_to_yojson (x : send_paid_media) : t =
   ; allow_paid_broadcast
   ; reply_parameters
   ; reply_markup
+  ]
+
+let send_media_group_to_yojson (x : send_media_group) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let media = media_to_yojson_l x.media in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; media
+  ; disable_notification
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ]
+
+let send_location_to_yojson (x : send_location) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let latitude = latitude_to_yojson x.latitude in
+  let longtitude = longtitude_to_yojson x.longtitude in
+  let horizontal_accuracy = horizontal_accuracy_to_yojson x.horizontal_accuracy in
+  let live_period = live_period_to_yojson x.live_period in
+  let heading = heading_to_yojson x.heading in
+  let proximity_alert_triggered = proximity_alert_triggered_to_yojson x.proximity_alert_triggered in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; latitude
+  ; longtitude
+  ; horizontal_accuracy
+  ; live_period
+  ; heading
+  ; proximity_alert_triggered
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_venue_to_yojson (x : send_venue) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let latitude = latitude_to_yojson x.latitude in
+  let longtitude = longtitude_to_yojson x.longtitude in
+  let title = title_to_yojson x.title in
+  let address = address_to_yojson x.address in
+  let foursquare_id = foursquare_id_option_to_yojson x.foursquare_id in
+  let foursquare_type = foursquare_type_option_to_yojson x.foursquare_type in
+  let google_place_id = google_place_id_option_to_yojson x.google_place_id in
+  let google_place_type = google_place_type_option_to_yojson x.google_place_type in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; latitude
+  ; longtitude
+  ; title
+  ; address
+  ; foursquare_id
+  ; foursquare_type
+  ; google_place_id
+  ; google_place_type
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_contact_to_yojson (x : send_contact) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let phone_number = phone_number_to_yojson x.phone_number in
+  let first_name = first_name_to_yojson x.first_name in
+  let last_name = last_name_to_yojson x.last_name in
+  let vcard = vcard_to_yojson x.vcard in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; phone_number
+  ; first_name
+  ; last_name
+  ; vcard
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_poll_to_yojson (x : send_poll) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let question = question_to_yojson x.question in
+  let question_parse_mode = question_parse_mode_to_yojson x.question_parse_mode in
+  let question_entities = question_entities_to_yojson x.question_entities in
+  let options = options_to_yojson x.options in
+  let is_anonymous = is_anonymous_to_yojson x.is_anonymous in
+  let _type = poll_type_to_yojson x._type in
+  let allows_multiple_answers = allows_multiple_answers_to_yojson x.allows_multiple_answers in
+  let correct_option_id = correct_option_id_to_yojson x.correct_option_id in
+  let explanation = explanation_to_yojson x.explanation in
+  let explanation_parse_mode = explanation_parse_mode_to_yojson x.explanation_parse_mode in
+  let explanation_entities = explanation_entities_to_yojson x.explanation_entities in
+  let open_period = open_period_to_yojson x.open_period in
+  let close_date = close_date_to_yojson x.close_date in
+  let is_closed = is_closed_to_yojson x.is_closed in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; question
+  ; question_parse_mode
+  ; question_entities
+  ; options
+  ; is_anonymous
+  ; _type
+  ; allows_multiple_answers
+  ; correct_option_id
+  ; explanation
+  ; explanation_parse_mode
+  ; explanation_entities
+  ; open_period
+  ; close_date
+  ; is_closed
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_dice_to_yojson (x: send_dice) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let dice = dice_to_yojson x.dice in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; dice
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let send_chat_action_to_yojson (x : send_chat_action) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let action = action_to_yojson x.action in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; action
+  ]
+
+let set_message_reaction_to_yojson (x : set_message_reaction) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_id = message_id_to_yojson_l x.message_id in
+  let reaction = reaction_to_yojson x.reaction in
+  let is_big = is_big_to_yojson x.is_big in
+  build_assoc
+  [ chat_id
+  ; message_id
+  ; reaction
+  ; is_big
+  ]
+
+let get_user_profile_photos_to_yojson (x : get_user_profile_photos) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let offset = offset_to_yojson x.offset in
+  let limit = limit_to_yojson x.limit in
+  build_assoc
+  [ user_id
+  ; offset
+  ; limit 
+  ]
+
+let set_user_emoji_status_to_yojson (x : set_user_emoji_status) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let emoji_status_custom_emoji_id = emoji_status_custom_emoji_id_to_yojson x.emoji_status_custom_emoji_id in
+  let emoji_status_expiration_date = emoji_status_expiration_date_to_yojson x.emoji_status_expiration_date in
+  build_assoc
+  [ user_id 
+  ; emoji_status_custom_emoji_id 
+  ; emoji_status_expiration_date
+  ]
+
+let get_file_to_yojson (x : get_file) : t =
+  let file_id = file_id_to_yojson x.file_id in
+  build_assoc [ file_id ]
+
+let ban_chat_member_to_yojson (x : ban_chat_member) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  let until_date = until_date_to_yojson x.until_date in
+  let revoke_messages = revoke_messages_to_yojson x.revoke_messages in
+  build_assoc
+  [ chat_id
+  ; user_id
+  ; until_date
+  ; revoke_messages
+  ]
+
+let unban_chat_member (x : unban_chat_member) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  let only_if_banned = only_if_banned_to_yojson x.only_if_banned in
+  build_assoc
+  [ chat_id
+  ; user_id
+  ; only_if_banned
+  ]
+
+let restrict_chat_member_to_yojson (x : restrict_chat_member) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  let permissions = permissions_to_yojson x.permissions in
+  let use_independent_chat_permissions = use_independent_chat_permissions_to_yojson x.use_independent_chat_permissions in
+  let until_date = until_date_to_yojson x.until_date in
+  build_assoc
+  [ chat_id
+  ; user_id
+  ; permissions
+  ; use_independent_chat_permissions
+  ; until_date
   ]
