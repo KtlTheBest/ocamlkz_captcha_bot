@@ -188,6 +188,37 @@ let revoke_messages_to_yojson x = bool_option_to_yojson_l "revoke_messages" x
 let only_if_banned_to_yojson x = bool_option_to_yojson_l "only_if_banned" x
 let permissions_to_yojson x = chat_permissions_to_yojson_l "permissions" x
 let use_independent_chat_permissions_to_yojson x = bool_option_to_yojson_l "use_independent_chat_permissions" x
+let can_manage_chat_to_yojson x = bool_option_to_yojson_l "can_manage_chat" x
+let can_delete_messages_to_yojson x = bool_option_to_yojson_l "can_delete_messages" x
+let can_manage_video_chats_to_yojson x = bool_option_to_yojson_l "can_manage_video_chats" x
+let can_restrict_members_to_yojson x = bool_option_to_yojson_l "can_restrict_members" x
+let can_promote_users_to_yojson x = bool_option_to_yojson_l "can_promote_users" x
+let can_change_info_to_yojson x = bool_option_to_yojson_l "can_change_info" x
+let can_invite_users_to_yojson x = bool_option_to_yojson_l "can_invite_users" x
+let can_post_stories_to_yojson x = bool_option_to_yojson_l "can_post_stories" x
+let can_edit_stories_to_yojson x = bool_option_to_yojson_l "can_edit_stories" x
+let can_delete_stories_to_yojson x = bool_option_to_yojson_l "can_delete_stories" x
+let can_post_messages_to_yojson x = bool_option_to_yojson_l "can_post_messages" x
+let can_edit_messages_to_yojson x = bool_option_to_yojson_l "can_edit_messages" x
+let can_pin_messages_to_yojson x = bool_option_to_yojson_l "can_pin_messages" x
+let can_manage_topics_to_yojson x = bool_option_to_yojson_l "can_manage_topics" x
+let can_add_web_page_previews_to_yojson x = bool_option_to_yojson_l "can_add_web_page_previews" x
+let custom_title_to_yojson x = string_to_yojson_l "custom_title" x
+let sender_chat_id_to_yojson x = int64_to_yojson_l "sender_chat_id" x
+let name_to_yojson x = string_option_to_yojson_l "name" x
+let expire_date_to_yojson x = int_option_to_yojson_l "expire_date" x
+let member_limit_to_yojson x = int_option_to_yojson_l "member_limit" x
+let create_join_request_to_yojson x = bool_option_to_yojson_l "create_join_request" x
+let creates_join_request_to_yojson x = bool_option_to_yojson_l "creates_join_request" x
+let subscription_period_to_yojson x = int_to_yojson_l "subscription_period" x
+let subscription_price_to_yojson x = int_to_yojson_l "subscription_price" x
+let invite_link_to_yojson x = string_to_yojson_l "invite_link" x
+let description_to_yojson x = string_to_yojson_l "description" x
+let sticker_set_name_to_yojson x = string_to_yojson_l "sticker_set_name" x
+let name2_to_yojson x = string_to_yojson_l "name" x
+let icon_color_to_yojson x = int_option_to_yojson_l "icon_color" x
+let icon_custom_emoji_id_to_yojson x = string_option_to_yojson_l "icon_custom_emoji_id" x
+let message_thread_id_to_yojson x = int_to_yojson_l "message_thread_id" x
 
 let send_message_to_yojson (sm: send_message) : t =
   let business_connection_id = business_connection_id_option_to_yojson_l sm.business_connection_id in
@@ -872,3 +903,274 @@ let restrict_chat_member_to_yojson (x : restrict_chat_member) : t =
   ; use_independent_chat_permissions
   ; until_date
   ]
+
+let promote_chat_member_to_yojson (x : promote_chat_member) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  let is_anonymous = is_anonymous_to_yojson x.is_anonymous in
+  let can_manage_chat = can_manage_chat_to_yojson x.can_manage_chat in
+  let can_delete_messages = can_delete_messages_to_yojson x.can_delete_messages in
+  let can_manage_video_chats = can_manage_video_chats_to_yojson x.can_manage_video_chats in
+  let can_restrict_members = can_restrict_members_to_yojson x.can_restrict_members in
+  let can_promote_users = can_promote_users_to_yojson x.can_promote_users in
+  let can_change_info = can_change_info_to_yojson x.can_change_info in
+  let can_invite_users = can_invite_users_to_yojson x.can_invite_users in
+  let can_post_stories = can_post_stories_to_yojson x.can_post_stories in
+  let can_edit_stories = can_edit_stories_to_yojson x.can_edit_stories in
+  let can_delete_stories = can_delete_stories_to_yojson x.can_delete_stories in
+  let can_post_messages = can_post_messages_to_yojson x.can_post_messages in
+  let can_edit_messages = can_edit_messages_to_yojson x.can_edit_messages in
+  let can_pin_messages = can_pin_messages_to_yojson x.can_pin_messages in
+  let can_manage_topics = can_manage_topics_to_yojson x.can_manage_topics in
+  let can_add_web_page_previews = can_add_web_page_previews_to_yojson x.can_add_web_page_previews in
+  let use_independent_chat_permissions = use_independent_chat_permissions_to_yojson x.use_independent_chat_permissions in
+  let until_date = until_date_to_yojson x.until_date in
+  build_assoc
+  [ chat_id
+  ; user_id
+  ; is_anonymous
+  ; can_manage_chat
+  ; can_delete_messages
+  ; can_manage_video_chats
+  ; can_restrict_members
+  ; can_promote_users
+  ; can_change_info
+  ; can_invite_users
+  ; can_post_stories
+  ; can_edit_stories
+  ; can_delete_stories
+  ; can_post_messages
+  ; can_edit_messages
+  ; can_pin_messages
+  ; can_manage_topics
+  ; can_add_web_page_previews
+  ; use_independent_chat_permissions
+  ; until_date
+  ]
+
+let set_chat_administrator_custom_title_to_yojson (x : set_chat_administrator_custom_title) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  let custom_title = custom_title_to_yojson x.custom_title in
+  build_assoc
+  [ chat_id
+  ; user_id
+  ; custom_title
+  ]
+
+let ban_chat_sender_chat_to_yojson (x : ban_chat_sender_chat) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let sender_chat_id = sender_chat_id_to_yojson x.sender_chat_id in
+  build_assoc [ chat_id; sender_chat_id ]
+
+let unban_chat_sender_chat_to_yojson (x : unban_chat_sender_chat) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let sender_chat_id = sender_chat_id_to_yojson x.sender_chat_id in
+  build_assoc [ chat_id; sender_chat_id ]
+
+let set_chat_permissions_to_yojson (x : set_chat_permissions) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let permissions = permissions_to_yojson x.permissions in
+  let use_independent_chat_permissions = use_independent_chat_permissions_to_yojson x.use_independent_chat_permissions in
+  build_assoc 
+  [ chat_id
+  ; permissions
+  ; use_independent_chat_permissions
+  ]
+
+let export_chat_invite_link_to_yojson (x : export_chat_invite_link) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let create_chat_invite_link (x : create_chat_invite_link) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let name = name_to_yojson x.name in
+  let expire_date = expire_date_to_yojson x.expire_date in
+  let member_limit = member_limit_to_yojson x.member_limit in
+  let create_join_request = create_join_request_to_yojson x.create_join_request in
+  build_assoc
+  [ chat_id
+  ; name
+  ; expire_date
+  ; member_limit
+  ; create_join_request
+  ]
+
+let edit_chat_invite_link (x : edit_chat_invite_link) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let name = name_to_yojson x.name in
+  let expire_date = expire_date_to_yojson x.expire_date in
+  let member_limit = member_limit_to_yojson x.member_limit in
+  let creates_join_request = create_join_request_to_yojson x.creates_join_request in
+  build_assoc
+  [ chat_id
+  ; name
+  ; expire_date
+  ; member_limit
+  ; creates_join_request
+  ]
+
+let create_chat_subscription_invite_link_to_yojson (x : create_chat_subscription_invite_link) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let name = name_to_yojson x.name in
+  let subscription_period = subscription_period_to_yojson x.subscription_period in
+  let subscription_price = subscription_price_to_yojson x.subscription_price in
+  build_assoc
+  [ chat_id
+  ; name
+  ; subscription_period
+  ; subscription_price
+  ]
+
+let edit_chat_subscription_invite_link_to_yojson (x : edit_chat_subscription_invite_link) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let invite_link = invite_link_to_yojson x.invite_link in
+  let name = name_to_yojson x.name in
+  build_assoc
+  [ chat_id
+  ; invite_link
+  ; name
+  ]
+
+let revoke_chat_invite_link (x : revoke_chat_invite_link) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let invite_link = invite_link_to_yojson x.invite_link in
+  build_assoc [ chat_id; invite_link ]
+
+let approve_chat_join_request_to_yojson (x : approve_chat_join_request) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  build_assoc [ chat_id; user_id ]
+
+let decline_chat_join_request_to_yojson (x : decline_chat_join_request) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  build_assoc [ chat_id; user_id ]
+
+let set_chat_photo_to_yojson (x : set_chat_photo) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let photo = photo_to_yojson_l x.photo in
+  build_assoc [ chat_id; photo ]
+
+let delete_chat_photo_to_yojson (x : delete_chat_photo) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let set_chat_title (x : set_chat_title) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let title = title_to_yojson x.title in
+  build_assoc [ chat_id; title ]
+
+let set_chat_description (x : set_chat_description) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let description = description_to_yojson x.description in
+  build_assoc [ chat_id; description ]
+
+let pin_chat_message (x : pin_chat_message) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_id = message_id_to_yojson_l x.message_id in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; disable_notification
+  ]
+
+let unpin_chat_message (x : unpin_chat_message) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_id = message_id_to_yojson_l x.message_id in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ]
+
+let unpin_all_chat_messages (x : unpin_all_chat_messages) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let leave_chat_to_yojson (x : leave_chat) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let get_chat_to_yojson (x : get_chat) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let get_chat_administrators_to_yojson (x : get_chat_administators) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let get_chat_member_count_to_yojson (x : get_chat_member_count) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let get_chat_member_to_yojson (x : get_chat_member) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  build_assoc [ chat_id; user_id ]
+
+let set_chat_sticker_set_to_yojson (x : set_chat_sticker_set) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let sticker_set_name = sticker_set_name_to_yojson x.sticker_set_name in
+  build_assoc [ chat_id; sticker_set_name ]
+
+let delete_chat_sticker_set_to_yojson (x : delete_chat_sticker_set) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let create_forum_topic_to_yojson (x : create_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let name = name2_to_yojson x.name in
+  let icon_color = icon_color_to_yojson x.icon_color in
+  let icon_custom_emoji_id = icon_custom_emoji_id_to_yojson x.icon_custom_emoji_id in
+  build_assoc
+  [ chat_id
+  ; name
+  ; icon_color
+  ; icon_custom_emoji_id
+  ]
+
+let edit_forum_topic_to_yojson (x : edit_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_to_yojson x.message_thread_id in
+  let name = name2_to_yojson x.name in
+  let icon_custom_emoji_id = icon_custom_emoji_id_to_yojson x.icon_custom_emoji_id in
+  build_assoc
+  [ chat_id
+  ; message_thread_id
+  ; name
+  ; icon_custom_emoji_id
+  ]
+
+let close_forum_topic_to_yojson (x : close_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_to_yojson x.message_thread_id in
+  build_assoc [ chat_id; message_thread_id ]
+
+let reopen_forum_topic_to_yojson (x : reopen_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_to_yojson x.message_thread_id in
+  build_assoc [ chat_id; message_thread_id ]
+
+let delete_forum_topic_to_yojson (x : delete_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_to_yojson x.message_thread_id in
+  build_assoc [ chat_id; message_thread_id ]
+
+let unpin_all_forum_topic_messages_to_yojson (x : unpin_all_forum_topic_messages) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_to_yojson x.message_thread_id in
+  build_assoc [ chat_id; message_thread_id ]
+
+let edit_general_forum_topic_to_yojson (x : edit_general_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let name = name2_to_yojson x.name in
+  build_assoc [ chat_id; name ]
+
+let close_general_forum_topic_to_yojson (x : close_general_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
