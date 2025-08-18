@@ -87,6 +87,11 @@ let message_entity_list_to_yojson l =
   in
   `List (loop l)
 
+let message_entity_list_option_to_yojson (o : message_entity list option) : Yojson.Safe.t =
+  match o with
+  | None -> `Null
+  | Some(v) -> message_entity_list_to_yojson v
+
 let link_preview_options_to_yojson lpo =
   let is_disabled = [("is_disabled", `Bool lpo.is_disabled)] in
   let url =
@@ -2862,3 +2867,251 @@ let chat_permissions_to_yojson (x : chat_permissions) : Yojson.Safe.t =
   ; can_pin_messages
   ; can_manage_topics
   ]
+
+let bot_command_to_yojson (x : bot_command) : Yojson.Safe.t =
+  let command = [("command", `String x.command)] in
+  let description = [("description", `String x.description)] in
+  assoc_to_json [ command; description ]
+
+let bot_command_scope_default_to_yojson (_ : bot_command_scope_default) : Yojson.Safe.t =
+  assoc_to_json [[("type", `String "default")]]
+
+let bot_command_scope_all_private_chats_to_yojson (_ : bot_command_scope_all_private_chats) : Yojson.Safe.t =
+  assoc_to_json [[("type", `String "all_private_chats")]]
+
+let bot_command_scope_all_group_chats_to_yojson (_ : bot_command_scope_all_group_chats) : Yojson.Safe.t =
+  assoc_to_json [[("type", `String "all_group_chats")]]
+
+let bot_command_scope_all_chat_administrators_to_yojson (_ : bot_command_scope_all_chat_administrators) =
+  assoc_to_json [[("type", `String "all_chat_administrators")]]
+
+let bot_command_scope_chat_to_yojson (x : bot_command_scope_chat) : Yojson.Safe.t =
+  let _type = [("type", `String "chat")] in
+  let chat_id = 
+    match x.chat_id with
+    | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))] 
+    | Channel(v) -> [("chat_id", `Intlit v)]
+  in
+  assoc_to_json [_type; chat_id]
+
+let bot_command_scope_chat_administrators_to_yojson (x : bot_command_scope_chat_administrators) : Yojson.Safe.t =
+  let _type = [("type", `String "chat_administrators")] in
+  let chat_id = 
+    match x.chat_id with
+    | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))] 
+    | Channel(v) -> [("chat_id", `Intlit v)]
+  in
+  assoc_to_json [_type; chat_id]
+
+let bot_command_scope_chat_member_to_yojson (x : bot_command_scope_chat_member) : Yojson.Safe.t =
+  let _type = [("type", `String "chat_administrators")] in
+  let chat_id = 
+    match x.chat_id with
+    | Chat(v) -> [("chat_id", `Intlit (BatInt64.to_string v))] 
+    | Channel(v) -> [("chat_id", `Intlit v)]
+  in
+  let user_id = [("user_id", `Intlit (BatInt64.to_string x.user_id))] in
+  assoc_to_json [_type; chat_id; user_id]
+
+let bot_command_scope_to_yojson (x : bot_command_scope) : Yojson.Safe.t =
+  match x with
+  | BotCommandScopeDefault(x') -> bot_command_scope_default_to_yojson x'
+  | BotCommandScopeAllPrivateChats(x') -> bot_command_scope_all_private_chats_to_yojson x'
+  | BotCommandScopeAllGroupChats(x') -> bot_command_scope_all_group_chats_to_yojson x'
+  | BotCommandScopeAllChatAdministrators(x') -> bot_command_scope_all_chat_administrators_to_yojson x'
+  | BotCommandScopeChat(x') -> bot_command_scope_chat_to_yojson x'
+  | BotCommandScopeChatAdministrators(x') -> bot_command_scope_chat_administrators_to_yojson x'
+  | BotCommandScopeChatMember(x') -> bot_command_scope_chat_member_to_yojson x'
+
+let menu_button_commands_to_yojson (_ : menu_button_commands) : Yojson.Safe.t =
+  assoc_to_json [[("type", `String "commands")]]
+
+let menu_button_web_app_to_yojson (x : menu_button_web_app) : Yojson.Safe.t =
+  let _type = [("type", `String "web_app")] in
+  let text = [("text", `String x.text)] in
+  let web_app = [("web_app_info", web_app_info_to_yojson x.web_app)] in
+  assoc_to_json 
+  [ _type
+  ; text
+  ; web_app
+  ]
+
+let menu_button_default_to_yojson (_ : menu_button_default) : Yojson.Safe.t =
+  assoc_to_json [[("type", `String "default")]]
+
+let menu_button_to_yojson (x : menu_button) : Yojson.Safe.t =
+  match x with
+  | MenuButtonCommands(x') -> menu_button_commands_to_yojson x'
+  | MenuButtonWebApp(x') -> menu_button_web_app_to_yojson x'
+  | MenuButtonDefault(x') -> menu_button_default_to_yojson x'
+
+let input_media_animation_to_yojson (x : input_media_animation) : Yojson.Safe.t =
+  let wrap f x =
+    match x with
+    | None -> []
+    | Some(v) -> [f v]
+  in
+  let _type = [("type", `String "animation")] in
+  let media = [("media", `String x.media)] in
+  let thumbnail = wrap (fun x -> ("thumbnail", `String x)) x.thumbnail in
+  let caption = wrap (fun x -> ("caption", `String x)) x.caption in
+  let parse_mode = wrap (fun x -> ("parse_mode", formatting_option_to_yojson_string x)) x.parse_mode in
+  let caption_entities = wrap (fun x -> ("caption_entities", message_entity_list_to_yojson x)) x.caption_entities in
+  let show_caption_above_media = wrap (fun x -> ("show_caption_above_media", `Bool x)) x.show_caption_above_media in
+  let width = wrap (fun x -> ("width", `Int x)) x.width in
+  let height = wrap (fun x -> ("height", `Int x)) x.height in
+  let duration = wrap (fun x -> ("duration", `Int x)) x.duration in
+  let has_spoiler = wrap (fun x -> ("has_spoiler", `Bool x)) x.has_spoiler in
+  assoc_to_json
+  [ _type
+  ; media
+  ; thumbnail
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; width
+  ; height
+  ; duration
+  ; has_spoiler
+  ]
+
+let input_media_document_to_yojson (x : input_media_document) : Yojson.Safe.t =
+  let wrap f x =
+    match x with
+    | None -> []
+    | Some(v) -> [f v]
+  in
+  let _type = [("type", `String "document")] in
+  let media = [("media", `String x.media)] in
+  let thumbnail = wrap (fun x -> ("thumbnail", `String x)) x.thumbnail in
+  let caption = wrap (fun x -> ("caption", `String x)) x.caption in
+  let parse_mode = wrap (fun x -> ("parse_mode", formatting_option_to_yojson_string x)) x.parse_mode in
+  let caption_entities = wrap (fun x -> ("caption_entities", message_entity_list_to_yojson x)) x.caption_entities in
+  let disable_content_type_detection = wrap (fun x -> ("disable_content_type_detection", `Bool x)) x.disable_content_type_detection in
+  assoc_to_json
+  [ _type
+  ; media
+  ; thumbnail
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; disable_content_type_detection
+  ]
+
+let input_media_audio_to_yojson (x : input_media_audio) : Yojson.Safe.t =
+  let wrap f x =
+    match x with
+    | None -> []
+    | Some(v) -> [f v]
+  in
+  let _type = [("type", `String "audio")] in
+  let media = [("media", `String x.media)] in
+  let thumbnail = wrap (fun x -> ("thumbnail", `String x)) x.thumbnail in
+  let caption = wrap (fun x -> ("caption", `String x)) x.caption in
+  let parse_mode = wrap (fun x -> ("parse_mode", formatting_option_to_yojson_string x)) x.parse_mode in
+  let caption_entities = wrap (fun x -> ("caption_entities", message_entity_list_to_yojson x)) x.caption_entities in
+  let duration = wrap (fun x -> ("duration", `Int x)) x.duration in
+  let performer = wrap (fun x -> ("performer", `String x)) x.performer in
+  let title = wrap (fun x -> ("title", `String x)) x.title in
+  assoc_to_json
+  [ _type
+  ; media
+  ; thumbnail
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; duration
+  ; performer
+  ; title
+  ]
+
+let input_media_photo_to_yojson (x : input_media_photo) : Yojson.Safe.t =
+  let wrap f x =
+    match x with
+    | None -> []
+    | Some(v) -> [f v]
+  in
+  let _type = [("type", `String "photo")] in
+  let media = [("media", `String x.media)] in
+  let thumbnail = wrap (fun x -> ("thumbnail", `String x)) x.thumbnail in
+  let caption = wrap (fun x -> ("caption", `String x)) x.caption in
+  let parse_mode = wrap (fun x -> ("parse_mode", formatting_option_to_yojson_string x)) x.parse_mode in
+  let caption_entities = wrap (fun x -> ("caption_entities", message_entity_list_to_yojson x)) x.caption_entities in
+  let show_caption_above_media = wrap (fun x -> ("show_caption_above_media", `Bool x)) x.show_caption_above_media in
+  let has_spoiler = wrap (fun x -> ("has_spoiler", `Bool x)) x.has_spoiler in
+  assoc_to_json
+  [ _type
+  ; media
+  ; thumbnail
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; has_spoiler
+  ]
+
+let input_media_video_to_yojson (x : input_media_video) : Yojson.Safe.t =
+  let wrap f x =
+    match x with
+    | None -> []
+    | Some(v) -> [f v]
+  in
+  let _type = [("type", `String "photo")] in
+  let media = [("media", `String x.media)] in
+  let thumbnail = wrap (fun x -> ("thumbnail", `String x)) x.thumbnail in
+  let cover = wrap (fun x -> ("cover", `String x)) x.cover in
+  let start_timestamp = wrap (fun x -> ("start_timestamp", `Int x)) x.start_timestamp in
+  let caption = wrap (fun x -> ("caption", `String x)) x.caption in
+  let parse_mode = wrap (fun x -> ("parse_mode", formatting_option_to_yojson_string x)) x.parse_mode in
+  let caption_entities = wrap (fun x -> ("caption_entities", message_entity_list_to_yojson x)) x.caption_entities in
+  let show_caption_above_media = wrap (fun x -> ("show_caption_above_media", `Bool x)) x.show_caption_above_media in
+  let width = wrap (fun x -> ("width", `Int x)) x.width in
+  let height = wrap (fun x -> ("height", `Int x)) x.height in
+  let duration = wrap (fun x -> ("duration", `Int x)) x.duration in
+  let supports_streaming = wrap (fun x -> ("supports_streaming", `Bool x)) x.supports_streaming in
+  let has_spoiler = wrap (fun x -> ("has_spoiler", `Bool x)) x.has_spoiler in
+  assoc_to_json
+  [ _type
+  ; media
+  ; thumbnail
+  ; cover
+  ; start_timestamp
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; width
+  ; height
+  ; duration
+  ; supports_streaming
+  ; has_spoiler
+  ]
+
+let input_media_to_yojson (x : input_media) : Yojson.Safe.t =
+  match x with
+  | InputMediaAnimation(x') -> input_media_animation_to_yojson x'
+  | InputMediaDocument(x') -> input_media_document_to_yojson x'
+  | InputMediaAudio(x') -> input_media_audio_to_yojson x'
+  | InputMediaPhoto(x') -> input_media_photo_to_yojson x'
+  | InputMediaVideo(x') -> input_media_video_to_yojson x'
+
+let input_profile_photo_static_to_yojson (x : input_profile_photo_static) : Yojson.Safe.t =
+  let _type = [("type", `String "static")] in
+  let photo = [("photo", `String x.photo)] in
+  assoc_to_json [_type; photo]
+
+let input_profile_photo_animated_to_yojson (x : input_profile_photo_animated) : Yojson.Safe.t =
+  let _type = [("type", `String "animated")] in
+  let animation = [("animation", `String x.animation)] in
+  let main_frame_timestamp =
+    match x.main_frame_timestamp with
+    | None -> []
+    | Some(v) -> [("main_frame_timestamp", `Float v)]
+  in
+  assoc_to_json [_type; animation; main_frame_timestamp]
+
+let input_profile_photo_to_yojson (x : input_profile_photo) : Yojson.Safe.t =
+  match x with
+  | InputProfilePhotoStatic(v) -> input_profile_photo_static_to_yojson v
+  | InputProfilePhotoAnimated(v) -> input_profile_photo_animated_to_yojson v

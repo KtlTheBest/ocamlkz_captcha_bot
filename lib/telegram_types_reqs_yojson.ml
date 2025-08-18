@@ -58,6 +58,14 @@ let chat_action_to_yojson = Telegram_types_utils.chat_action_to_yojson
 let reaction_type_to_yojson = Telegram_types_utils.reaction_type_to_yojson
 let reaction_type_list_to_yojson x = `List (List.map reaction_type_to_yojson x)
 let chat_permissions_to_yojson = Telegram_types_utils.chat_permissions_to_yojson
+let bot_command_to_yojson = Telegram_types_utils.bot_command_to_yojson
+let bot_command_list_to_yojson x = `List (List.map bot_command_to_yojson x)
+let bot_command_scope_to_yojson = Telegram_types_utils.bot_command_scope_to_yojson
+let menu_button_to_yojson = Telegram_types_utils.menu_button_to_yojson
+let chat_administrator_rights_to_yojson = Telegram_types_utils.chat_administrator_rights_to_yojson
+let inline_keyboard_markup_to_yojson = Telegram_types_utils.inline_keyboard_markup_to_yojson
+let input_media_to_yojson = Telegram_types_utils.input_media_to_yojson
+let input_profile_photo_to_yojson = Telegram_types_utils.input_profile_photo_to_yojson
 
 let bool_to_yojson_l = to_wrap_l bool_to_yojson
 let int_to_yojson_l = to_wrap_l int_to_yojson
@@ -79,6 +87,13 @@ let chat_action_to_yojson_l = to_wrap_l chat_action_to_yojson
 let reaction_type_list_to_yojson_l = to_wrap_l reaction_type_list_to_yojson
 let int64_to_yojson_l = to_wrap_l int64_to_yojson
 let chat_permissions_to_yojson_l = to_wrap_l chat_permissions_to_yojson
+let bot_command_list_to_yojson_l = to_wrap_l bot_command_list_to_yojson
+let bot_command_scope_to_yojson_l = to_wrap_l bot_command_scope_to_yojson
+let menu_button_to_yojson_l = to_wrap_l menu_button_to_yojson
+let chat_administrator_rights_to_yojson_l = to_wrap_l chat_administrator_rights_to_yojson
+let inline_keyboard_markup_to_yojson_l = to_wrap_l inline_keyboard_markup_to_yojson
+let input_media_to_yojson_l = to_wrap_l input_media_to_yojson
+let input_profile_photo_to_yojson_l = to_wrap_l input_profile_photo_to_yojson
 
 let bool_option_to_yojson_l = lift_opt bool_to_yojson_l
 let int_option_to_yojson_l = lift_opt int_to_yojson_l
@@ -98,6 +113,14 @@ let chat_action_option_to_yojson_l = lift_opt chat_action_to_yojson_l
 let reaction_type_list_option_to_yojson_l = lift_opt reaction_type_list_to_yojson_l
 let int64_option_to_yojson_l = lift_opt int64_to_yojson_l
 let chat_permissions_option_to_yojson_l = lift_opt chat_permissions_to_yojson_l
+let bot_command_list_option_to_yojson_l = lift_opt bot_command_list_to_yojson_l
+let bot_command_scope_option_to_yojson_l = lift_opt bot_command_scope_to_yojson_l
+let menu_button_option_to_yojson_l = lift_opt menu_button_to_yojson_l
+let chat_administrator_rights_option_to_yojson_l = lift_opt chat_administrator_rights_to_yojson_l
+let target_chat_option_to_yojson_l = lift_opt target_chat_to_yojson_l
+let inline_keyboard_markup_option_to_yojson_l = lift_opt inline_keyboard_markup_to_yojson_l
+let input_media_option_to_yojson_l = lift_opt input_media_to_yojson_l
+let input_profile_photo_option_to_yojson_l = lift_opt input_profile_photo_to_yojson_l
 
 let business_connection_id_option_to_yojson_l bci = string_option_to_yojson_l "business_connection_id" bci
 let chat_id_to_yojson_l c_id = target_chat_to_yojson_l "chat_id" c_id
@@ -219,6 +242,41 @@ let name2_to_yojson x = string_to_yojson_l "name" x
 let icon_color_to_yojson x = int_option_to_yojson_l "icon_color" x
 let icon_custom_emoji_id_to_yojson x = string_option_to_yojson_l "icon_custom_emoji_id" x
 let message_thread_id_to_yojson x = int_to_yojson_l "message_thread_id" x
+let callback_query_id_to_yojson x = string_to_yojson_l "callback_query_id" x
+let text_option_to_yojson x = string_option_to_yojson_l "text" x
+let show_alert_to_yojson x = bool_option_to_yojson_l "show_alert" x
+let url_to_yojson x = string_option_to_yojson_l "url" x
+let cache_time_to_yojson x = int_option_to_yojson_l "cache_time" x
+let business_connection_id_to_yojson x = string_to_yojson_l "business_connection_id" x
+let commands_to_yojson x = bot_command_list_to_yojson_l "commands" x
+let scope_to_yojson x = bot_command_scope_option_to_yojson_l "scope" x
+let language_code_to_yojson x = string_option_to_yojson_l "language_code" x
+let description_option_to_yojson x = string_option_to_yojson_l "description" x
+let short_description_option_to_yojson x = string_option_to_yojson_l "short_description" x
+let chat_id_option_to_yojson x = int_option_to_yojson_l "chat_id" x
+let menu_button_option_to_yojson x = menu_button_option_to_yojson_l "menu_button" x
+let rights_to_yojson x = chat_administrator_rights_option_to_yojson_l "rights" x
+let for_channels_to_yojson x = bool_option_to_yojson_l "for_channels" x
+let chat_id_opt_to_yojson_l x = target_chat_option_to_yojson_l "chat_id" x
+let message_id_option_to_yojson_l x = int_option_to_yojson_l "message_id" x
+let inline_message_id_to_yojson x = string_option_to_yojson_l "inline_message_id" x
+let link_preview_options_to_yojson x = link_preview_options_option_t_to_yojson "link_preview_options" x
+let reply_markup_to_yojson x = inline_keyboard_markup_option_to_yojson_l "reply_markup" x
+let media_to_yojson x = input_media_to_yojson_l "media" x
+let inline_message_id_option_to_yojson x = string_option_to_yojson_l "inline_message_id" x
+let proximity_alert_radius_to_yojson x = int_option_to_yojson_l "proximity_alert_radius" x
+let user_id_option_to_yojson x = int64_option_to_yojson_l "user_id" x
+let gift_id_to_yojson x = string_to_yojson_l "gift_id" x
+let pay_for_upgrade_to_yojson x = bool_option_to_yojson_l "pay_for_upgrade" x
+let text_parse_mode_to_yojson x = formatting_option_option_to_yojson_l "text_parse_mode" x
+let text_entities_to_yojson x = message_entity_list_option_to_yojson_l "text_entities" x
+let month_count_to_yojson x = int_to_yojson_l "month_count" x
+let star_count_to_yojson x = int_to_yojson_l "star_count" x
+let custom_description_to_yojson x = string_option_to_yojson_l "custom_description" x
+let chat_id_to_yojson x = int64_to_yojson_l "chat_id" x
+let bio_to_yojson x = string_option_to_yojson_l "bio" x
+let photo2_to_yojson_l x = input_profile_photo_option_to_yojson_l "photo" x
+let is_public_to_yojson x = bool_option_to_yojson_l "is_public" x
 
 let send_message_to_yojson (sm: send_message) : t =
   let business_connection_id = business_connection_id_option_to_yojson_l sm.business_connection_id in
@@ -1174,3 +1232,335 @@ let edit_general_forum_topic_to_yojson (x : edit_general_forum_topic) : t =
 let close_general_forum_topic_to_yojson (x : close_general_forum_topic) : t =
   let chat_id = chat_id_to_yojson_l x.chat_id in
   build_assoc [ chat_id ]
+
+let reopen_general_forum_topic_to_yojson (x : reopen_general_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let hide_general_forum_topic_to_yojson (x : hide_general_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let unhide_general_forum_topic_to_yojson (x : unhide_general_forum_topic) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let unpin_all_general_forum_topic_messages_to_yojson (x : unpin_all_general_forum_topic_messages) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let answer_callback_query_to_yojson (x : answer_callback_query) : t =
+  let callback_query_id = callback_query_id_to_yojson x.callback_query_id in
+  let text = text_option_to_yojson x.text in
+  let show_alert = show_alert_to_yojson x.show_alert in
+  let url = url_to_yojson x.url in
+  let cache_time = cache_time_to_yojson x.cache_time in
+  build_assoc
+  [ callback_query_id
+  ; text
+  ; show_alert
+  ; url
+  ; cache_time
+  ]
+
+let get_user_chat_boosts_to_yojson (x : get_user_chat_boosts) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let user_id = user_id_to_yojson x.user_id in
+  build_assoc [ chat_id; user_id ]
+
+let get_business_connection_to_yojson (x : get_business_connection) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  build_assoc [ business_connection_id ]
+
+let set_my_commands_to_yojson (x : set_my_commands) : t =
+  let commands = commands_to_yojson x.commands in
+  let scope = scope_to_yojson x.scope in
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc
+  [ commands
+  ; scope
+  ; language_code
+  ]
+
+let delete_my_commands_to_yojson (x : delete_my_commands) : t =
+  let scope = scope_to_yojson x.scope in
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ scope; language_code ]
+
+let get_my_commands_to_yojson (x : get_my_commands) : t =
+  let scope = scope_to_yojson x.scope in
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ scope; language_code ]
+
+let set_my_name_to_yojson (x : set_my_name) : t =
+  let name = name_to_yojson x.name in
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ name; language_code ]
+
+let get_my_name_to_yojson (x : get_my_name) : t =
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ language_code ]
+
+let set_my_description_to_yojson (x : set_my_description) : t =
+  let description = description_option_to_yojson x.description in
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ description; language_code ]
+
+let get_my_description_to_yojson (x : get_my_description) : t =
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ language_code ]
+
+let set_my_short_description_to_yojson (x : set_my_short_description) : t =
+  let short_description = short_description_option_to_yojson x.short_description in
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ short_description; language_code ]
+
+let get_my_short_description_to_yojson (x : get_my_short_description) : t =
+  let language_code = language_code_to_yojson x.language_code in
+  build_assoc [ language_code ]
+
+let set_chat_menu_button_to_yojson (x : set_chat_menu_button) : t =
+  let chat_id = chat_id_option_to_yojson x.chat_id in
+  let menu_button = menu_button_option_to_yojson x.menu_button in
+  build_assoc [ chat_id; menu_button ]
+
+let get_chat_menu_button_to_yojson (x : get_chat_menu_button) : Yojson.Safe.t =
+  let chat_id = chat_id_option_to_yojson x.chat_id in
+  build_assoc [chat_id]
+
+let set_my_default_administrator_rights_to_yojson (x : set_my_default_administrator_rights) : t =
+  let rights = rights_to_yojson x.rights in
+  let for_channels = for_channels_to_yojson x.for_channels in
+  build_assoc [ rights; for_channels ]
+
+let get_my_default_administrator_rights_to_yojson (x : get_my_default_administrator_rights) : t =
+  let for_channels = for_channels_to_yojson x.for_channels in
+  build_assoc [ for_channels ]
+
+let edit_message_text_to_yojson (x : edit_message_text) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let message_id = message_id_option_to_yojson_l x.message_id in
+  let inline_message_id = inline_message_id_to_yojson x.inline_message_id in
+  let text = text_to_yojson_l x.text in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let entities = entities_option_to_yojson_l x.entities in
+  let link_preview_options = link_preview_options_to_yojson x.link_preview_options in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; inline_message_id
+  ; text
+  ; parse_mode
+  ; entities
+  ; link_preview_options
+  ; reply_markup
+  ]
+
+let edit_message_caption_to_yojson (x : edit_message_caption) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let message_id = message_id_option_to_yojson_l x.message_id in
+  let inline_message_id = inline_message_id_to_yojson x.inline_message_id in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let show_caption_above_media = show_caption_above_media_option_to_yojson_l x.show_caption_above_media in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; inline_message_id
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; show_caption_above_media
+  ; reply_markup
+  ]
+
+let edit_message_media_to_yojson (x : edit_message_media) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let message_id = message_id_option_to_yojson_l x.message_id in
+  let inline_message_id = inline_message_id_to_yojson x.inline_message_id in
+  let media = media_to_yojson x.media in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; inline_message_id
+  ; media
+  ; reply_markup
+  ]
+
+let edit_message_live_location (x : edit_message_live_location) : Yojson.Safe.t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let message_id = message_id_option_to_yojson_l x.message_id in
+  let inline_message_id = inline_message_id_option_to_yojson x.inline_message_id in
+  let latitude = latitude_to_yojson x.latitude in
+  let longtitude = longtitude_to_yojson x.latitude in
+  let live_period = live_period_to_yojson x.live_period in
+  let horizontal_accuracy = horizontal_accuracy_to_yojson x.horizontal_accuracy in
+  let heading = heading_to_yojson x.heading in
+  let proximity_alert_radius = proximity_alert_radius_to_yojson x.proximity_alert_radius in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; inline_message_id
+  ; latitude
+  ; longtitude
+  ; live_period
+  ; horizontal_accuracy
+  ; heading
+  ; proximity_alert_radius
+  ; reply_markup
+  ]
+
+let stop_message_live_location_to_yojson (x : stop_message_live_location) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let message_id = message_id_option_to_yojson_l x.message_id in
+  let inline_message_id = inline_message_id_option_to_yojson x.inline_message_id in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; inline_message_id
+  ; reply_markup
+  ]
+
+let edit_message_reply_markup_to_yojson (x : edit_message_reply_markup) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let message_id = message_id_option_to_yojson_l x.message_id in
+  let inline_message_id = inline_message_id_option_to_yojson x.inline_message_id in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; inline_message_id
+  ; reply_markup
+  ]
+
+let stop_poll_to_yojson (x : stop_poll) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_id = message_id_to_yojson_l x.message_id in
+  let reply_markup = reply_markup_to_yojson x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ; reply_markup
+  ]
+
+let delete_message_to_yojson (x : delete_message) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_id = message_id_to_yojson_l x.message_id in
+  build_assoc [ chat_id; message_id ]
+
+let delete_messages_to_yojson (x : delete_messages) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_ids = message_ids_to_yojson_l x.message_ids in
+  build_assoc [ chat_id; message_ids ]
+
+let send_gift_to_yojson (x : send_gift) : t =
+  let user_id = user_id_option_to_yojson x.user_id in
+  let chat_id = chat_id_opt_to_yojson_l x.chat_id in
+  let gift_id = gift_id_to_yojson x.gift_id in
+  let pay_for_upgrade = pay_for_upgrade_to_yojson x.pay_for_upgrade in
+  let text = text_option_to_yojson x.text in
+  let text_parse_mode = text_parse_mode_to_yojson x.text_parse_mode in
+  let text_entities = text_entities_to_yojson x.text_entities in
+  build_assoc
+  [ user_id
+  ; chat_id
+  ; gift_id
+  ; pay_for_upgrade
+  ; text
+  ; text_parse_mode
+  ; text_entities
+  ]
+
+let gift_premium_subscription_to_yojson (x : gift_premium_subscription) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let month_count = month_count_to_yojson x.month_count in
+  let star_count = star_count_to_yojson x.month_count in
+  let text = text_option_to_yojson x.text in
+  let text_parse_mode = text_parse_mode_to_yojson x.text_parse_mode in
+  let text_entities = text_entities_to_yojson x.text_entities in
+  build_assoc
+  [ user_id
+  ; month_count
+  ; star_count
+  ; text
+  ; text_parse_mode
+  ; text_entities
+  ]
+
+let verify_user_to_yojson (x : verify_user) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let custom_description = custom_description_to_yojson x.custom_description in
+  build_assoc [ user_id; custom_description ]
+
+let verify_chat_to_yojson (x : verify_chat) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let custom_description = custom_description_to_yojson x.custom_description in
+  build_assoc [ chat_id; custom_description ]
+
+let remove_user_verification_to_yojson (x : remove_user_verification) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  build_assoc [ user_id ]
+
+let remove_chat_verification_to_yojson (x : remove_chat_verification) : t =
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  build_assoc [ chat_id ]
+
+let read_business_message_to_yojson (x : read_business_message) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let chat_id = chat_id_to_yojson x.chat_id in
+  let message_id = message_id_to_yojson_l x.message_id in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_id
+  ]
+
+let delete_business_messages_to_yojson (x : delete_business_messages) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let message_ids = message_ids_to_yojson_l x.message_ids in
+  build_assoc [ business_connection_id; message_ids ]
+
+let set_business_account_name_to_yojson (x : set_business_account_name) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let first_name = first_name_to_yojson x.first_name in
+  let last_name = last_name_to_yojson x.last_name in
+  build_assoc
+  [ business_connection_id
+  ; first_name
+  ; last_name
+  ]
+
+let set_business_account_bio_to_yojson (x : set_business_account_bio) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let bio = bio_to_yojson x.bio in
+  build_assoc [ business_connection_id; bio ]
+
+let set_business_account_profile_photo_to_yojson (x : set_business_account_profile_photo) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let photo = photo2_to_yojson_l x.photo in
+  let is_public = is_public_to_yojson x.is_public in
+  build_assoc
+  [ business_connection_id
+  ; photo
+  ; is_public
+  ]

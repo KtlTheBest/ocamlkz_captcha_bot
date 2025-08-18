@@ -793,7 +793,7 @@ type edit_message_live_location = {
   business_connection_id: string option;
   chat_id: target_chat option;
   message_id: int option;
-  inline_message_id: int option;
+  inline_message_id: string option;
   latitude: float;
   longtitude: float;
   live_period: int option;
@@ -808,7 +808,7 @@ type stop_message_live_location = {
   business_connection_id: string option;
   chat_id: target_chat option;
   message_id: int option;
-  inline_message_id: int option;
+  inline_message_id: string option;
   reply_markup: inline_keyboard_markup option;
 }
 [@@deriving show]
