@@ -992,7 +992,7 @@ type post_story = {
   active_period: int;
   caption: string option;
   parse_mode: formatting_option option;
-  caption_entities: message_entity list;
+  caption_entities: message_entity list option;
   areas: story_area list option;
   post_to_chat_page: bool option;
   protect_content: bool option;
@@ -1005,7 +1005,7 @@ type edit_story = {
   content: input_story_content;
   caption: string option;
   parse_mode: formatting_option option;
-  caption_entities: message_entity list;
+  caption_entities: message_entity list option;
   areas: story_area list option;
 }
 [@@deriving show]
@@ -1077,7 +1077,7 @@ type delete_sticker_from_set = {
 [@@deriving show]
 
 type replace_sticker_in_set = {
-  user_id: int;
+  user_id: int64;
   name: string;
   old_sticker: string;
   sticker: input_sticker;
@@ -1110,7 +1110,7 @@ type set_sticker_set_title = {
 
 type set_sticker_set_thumbnail = {
   name: string;
-  user_id: int;
+  user_id: int64;
   thumbnail: input_file_or_string_type option;
   format: string;
 }

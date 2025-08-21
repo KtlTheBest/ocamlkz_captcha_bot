@@ -1676,7 +1676,7 @@ type input_story_content_photo = {
 type input_story_content_video = {
   _type: string;
   video: string;
-  duration: float;
+  duration: float option;
   cover_frame_timestamp: float option;
   is_animation: bool option;
 }

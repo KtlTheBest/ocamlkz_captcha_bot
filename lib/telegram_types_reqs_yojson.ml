@@ -66,6 +66,14 @@ let chat_administrator_rights_to_yojson = Telegram_types_utils.chat_administrato
 let inline_keyboard_markup_to_yojson = Telegram_types_utils.inline_keyboard_markup_to_yojson
 let input_media_to_yojson = Telegram_types_utils.input_media_to_yojson
 let input_profile_photo_to_yojson = Telegram_types_utils.input_profile_photo_to_yojson
+let accepted_gift_types_to_yojson = Telegram_types_utils.accepted_gift_types_to_yojson
+let input_story_content_to_yojson = Telegram_types_utils.input_story_content_to_yojson
+let story_area_to_yojson = Telegram_types_utils.story_area_to_yojson
+let story_area_list_to_yojson x = `List (List.map story_area_to_yojson x)
+let string_list_to_yojson x = `List (List.map string_to_yojson x)
+let input_sticker_to_yojson = Telegram_types_utils.input_sticker_to_yojson
+let input_sticker_list_to_yojson x = `List (List.map input_sticker_to_yojson x)
+let mask_position_t_to_yojson = Telegram_types_utils.mask_position_to_yojson
 
 let bool_to_yojson_l = to_wrap_l bool_to_yojson
 let int_to_yojson_l = to_wrap_l int_to_yojson
@@ -94,6 +102,13 @@ let chat_administrator_rights_to_yojson_l = to_wrap_l chat_administrator_rights_
 let inline_keyboard_markup_to_yojson_l = to_wrap_l inline_keyboard_markup_to_yojson
 let input_media_to_yojson_l = to_wrap_l input_media_to_yojson
 let input_profile_photo_to_yojson_l = to_wrap_l input_profile_photo_to_yojson
+let accepted_gift_types_to_yojson_l = to_wrap_l accepted_gift_types_to_yojson
+let input_story_content_to_yojson_l = to_wrap_l input_story_content_to_yojson
+let story_area_list_to_yojson_l = to_wrap_l story_area_list_to_yojson
+let string_list_to_yojson_l = to_wrap_l string_list_to_yojson
+let input_sticker_list_to_yojson_l = to_wrap_l input_sticker_list_to_yojson
+let input_sticker_to_yojson_l = to_wrap_l input_sticker_to_yojson
+let mask_position_t_to_yojson_l = to_wrap_l mask_position_t_to_yojson
 
 let bool_option_to_yojson_l = lift_opt bool_to_yojson_l
 let int_option_to_yojson_l = lift_opt int_to_yojson_l
@@ -121,6 +136,13 @@ let target_chat_option_to_yojson_l = lift_opt target_chat_to_yojson_l
 let inline_keyboard_markup_option_to_yojson_l = lift_opt inline_keyboard_markup_to_yojson_l
 let input_media_option_to_yojson_l = lift_opt input_media_to_yojson_l
 let input_profile_photo_option_to_yojson_l = lift_opt input_profile_photo_to_yojson_l
+let accepted_gift_types_option_to_yojson_l = lift_opt accepted_gift_types_to_yojson_l
+let input_story_content_option_to_yojson_l = lift_opt input_story_content_to_yojson_l
+let story_area_list_option_to_yojson_l = lift_opt story_area_list_to_yojson_l
+let string_list_option_to_yojson_l = lift_opt string_list_to_yojson_l
+let input_sticker_list_option_to_yojson_l = lift_opt input_sticker_list_to_yojson_l
+let input_sticker_option_to_yojson_l = lift_opt input_sticker_to_yojson_l
+let mask_position_t_option_to_yojson_l = lift_opt mask_position_t_to_yojson_l
 
 let business_connection_id_option_to_yojson_l bci = string_option_to_yojson_l "business_connection_id" bci
 let chat_id_to_yojson_l c_id = target_chat_to_yojson_l "chat_id" c_id
@@ -238,7 +260,7 @@ let subscription_price_to_yojson x = int_to_yojson_l "subscription_price" x
 let invite_link_to_yojson x = string_to_yojson_l "invite_link" x
 let description_to_yojson x = string_to_yojson_l "description" x
 let sticker_set_name_to_yojson x = string_to_yojson_l "sticker_set_name" x
-let name2_to_yojson x = string_to_yojson_l "name" x
+(* let name2_to_yojson x = string_to_yojson_l "name" x *)
 let icon_color_to_yojson x = int_option_to_yojson_l "icon_color" x
 let icon_custom_emoji_id_to_yojson x = string_option_to_yojson_l "icon_custom_emoji_id" x
 let message_thread_id_to_yojson x = int_to_yojson_l "message_thread_id" x
@@ -277,6 +299,41 @@ let chat_id_to_yojson x = int64_to_yojson_l "chat_id" x
 let bio_to_yojson x = string_option_to_yojson_l "bio" x
 let photo2_to_yojson_l x = input_profile_photo_option_to_yojson_l "photo" x
 let is_public_to_yojson x = bool_option_to_yojson_l "is_public" x
+let show_gift_button_to_yojson x = bool_to_yojson_l "show_gift_button" x
+let accepted_gift_types_to_yoj x = accepted_gift_types_to_yojson_l "accepted_gift_types" x
+let exclude_unsaved_to_yojson x = bool_option_to_yojson_l "exclude_unsaved" x
+let exclude_saved_to_yojson x = bool_option_to_yojson_l "exclude_saved" x
+let exclude_unlimited_to_yojson x = bool_option_to_yojson_l "exclude_unlimited" x
+let exclude_limited_to_yojson x = bool_option_to_yojson_l "exclude_limited" x
+let exclude_unique_to_yojson x = bool_option_to_yojson_l "exclude_unique" x
+let sort_by_price_to_yojson x = bool_option_to_yojson_l "sort_by_price" x
+let offset_string_opt_to_yojson x = string_option_to_yojson_l "offset" x
+let owned_gift_id_to_yojson x = string_to_yojson_l "owned_gift_id" x
+let keep_original_details_to_yojson x = bool_option_to_yojson_l "keep_original_details" x
+let star_count_opt_to_yojson x = int_option_to_yojson_l "star_count" x
+let new_owner_chat_id_to_yojson x = int64_to_yojson_l "new_owner_chat_id" x
+let content_to_yojson x = input_story_content_to_yojson_l "content_to_yojson" x
+let active_period_to_yojson x = int_to_yojson_l "active_period" x
+let areas_to_yojson x = story_area_list_option_to_yojson_l "areas" x
+let story_id_to_yojson x = int_to_yojson_l "story_id" x
+let sticker_to_yojson x = input_file_or_string_type_to_yojson_l "sticker" x
+let emoji_to_yojson x = string_option_to_yojson_l "emoji" x
+let custom_emoji_ids_to_yojson x = string_list_to_yojson_l "custom_emoji_ids" x
+(* let sticker2_to_yojson x = string_to_yojson_l "sticker" x *)
+let sticker_format_to_yojson x = string_to_yojson_l "sticker_format" x
+let name2_to_yojson x = string_to_yojson_l "name" x
+let stickers_to_yojson x = input_sticker_list_to_yojson_l "stickers" x
+let sticker_type_to_yojson x = string_option_to_yojson_l "sticker_type" x
+let needs_repainting_to_yojson x = bool_option_to_yojson_l "needs_repainting" x
+let sticker2_to_yojson x = input_sticker_to_yojson_l "sticker" x
+let sticker3_to_yojson x = string_to_yojson_l "sticker" x
+let position_to_yojson x = int_to_yojson_l "position" x
+let old_sticker_to_yojson x = string_to_yojson_l "old_sticker" x
+let emoji_list_to_yojson x = string_list_to_yojson_l "emoji_list" x
+let keywords_to_yojson x = string_list_to_yojson_l "keywords" x
+let mask_position_to_yojson x = mask_position_t_option_to_yojson_l "mask_position" x
+let format_to_yojson x = string_to_yojson_l "format" x
+let custom_emoji_id_to_yojson x = string_option_to_yojson_l "custom_emoji_id" x
 
 let send_message_to_yojson (sm: send_message) : t =
   let business_connection_id = business_connection_id_option_to_yojson_l sm.business_connection_id in
@@ -1564,3 +1621,251 @@ let set_business_account_profile_photo_to_yojson (x : set_business_account_profi
   ; photo
   ; is_public
   ]
+
+let remove_business_account_profile_photo_to_yojson (x : remove_business_account_profile_photo) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let is_public = is_public_to_yojson x.is_public in
+  build_assoc [ business_connection_id; is_public ]
+
+let set_business_account_gift_settings_to_yojson (x : set_business_account_gift_settings) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let show_gift_button = show_gift_button_to_yojson x.show_gift_button in
+  let accepted_gift_types = accepted_gift_types_to_yoj x.accepted_gift_types in
+  build_assoc
+  [ business_connection_id
+  ; show_gift_button
+  ; accepted_gift_types
+  ]
+
+let get_business_account_star_balance_to_yojson (x : get_business_account_star_balance) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  build_assoc [ business_connection_id ]
+
+let transfer_business_account_stars_to_yojson (x : transfer_business_account_stars) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let star_count = star_count_to_yojson x.star_count in
+  build_assoc [ business_connection_id; star_count ]
+
+let get_business_account_gifts_to_yojson (x : get_business_account_gifts) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let exclude_unsaved = exclude_unsaved_to_yojson x.exclude_unsaved in
+  let exclude_saved = exclude_saved_to_yojson x.exclude_saved in
+  let exclude_unlimited = exclude_unlimited_to_yojson x.exclude_unlimited in
+  let exclude_limited = exclude_limited_to_yojson x.exclude_limited in
+  let exclude_unique = exclude_unique_to_yojson x.exclude_unique in
+  let sort_by_price = sort_by_price_to_yojson x.sort_by_price in
+  let offset = offset_string_opt_to_yojson x.offset in
+  let limit = limit_to_yojson x.limit in
+  build_assoc
+  [ business_connection_id
+  ; exclude_unsaved
+  ; exclude_saved
+  ; exclude_unlimited
+  ; exclude_limited
+  ; exclude_unique
+  ; sort_by_price
+  ; offset
+  ; limit
+  ]
+
+let convert_gift_to_stars_to_yojson (x : convert_gift_to_stars) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let owned_gift_id = owned_gift_id_to_yojson x.owned_gift_id in
+  build_assoc [ business_connection_id; owned_gift_id ]
+
+let upgrade_gift_to_yojson (x : upgrade_gift) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let owned_gift_id = owned_gift_id_to_yojson x.owned_gift_id in
+  let keep_original_details = keep_original_details_to_yojson x.keep_original_details in
+  let star_count = star_count_opt_to_yojson x.star_count in
+  build_assoc
+  [ business_connection_id
+  ; owned_gift_id
+  ; keep_original_details
+  ; star_count
+  ]
+
+let transfer_gift_to_yojson (x : transfer_gift) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let owned_gift_id = owned_gift_id_to_yojson x.owned_gift_id in
+  let new_owner_chat_id = new_owner_chat_id_to_yojson x.new_owner_chat_id in
+  let star_count = star_count_opt_to_yojson x.star_count in
+  build_assoc
+  [ business_connection_id
+  ; owned_gift_id
+  ; new_owner_chat_id
+  ; star_count
+  ]
+
+let post_story_to_yojson (x : post_story) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let content = content_to_yojson x.content in
+  let active_period = active_period_to_yojson x.active_period in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let areas = areas_to_yojson x.areas in
+  build_assoc
+  [ business_connection_id
+  ; content
+  ; active_period
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; areas
+  ]
+
+let edit_story_to_yojson (x : edit_story) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let story_id = story_id_to_yojson x.story_id in
+  let content = content_to_yojson x.content in
+  let caption = caption_option_to_yojson_l x.caption in
+  let parse_mode = parse_mode_option_to_yojson_l x.parse_mode in
+  let caption_entities = caption_entities_option_to_yojson_l x.caption_entities in
+  let areas = areas_to_yojson x.areas in
+  build_assoc
+  [ business_connection_id
+  ; story_id
+  ; content
+  ; caption
+  ; parse_mode
+  ; caption_entities
+  ; areas
+  ]
+
+let delete_story_to_yojson (x : delete_story) : t =
+  let business_connection_id = business_connection_id_to_yojson x.business_connection_id in
+  let story_id = story_id_to_yojson x.story_id in
+  build_assoc [ business_connection_id; story_id ]
+
+let send_sticker_to_yojson (x : send_sticker) : t =
+  let business_connection_id = business_connection_id_option_to_yojson_l x.business_connection_id in
+  let chat_id = chat_id_to_yojson_l x.chat_id in
+  let message_thread_id = message_thread_id_option_to_yojson_l x.message_thread_id in
+  let sticker = sticker_to_yojson x.sticker in
+  let emoji = emoji_to_yojson x.emoji in
+  let disable_notification = disable_notification_option_to_yojson_l x.disable_notification in
+  let protect_content = protect_content_option_to_yojson_l x.protect_content in
+  let allow_paid_broadcast = allow_paid_broadcast_option_to_yojson_l x.allow_paid_broadcast in
+  let message_effect_id = message_effect_id_option_to_yojson_l x.message_effect_id in
+  let reply_parameters = reply_parameters_option_to_yojson_l x.reply_parameters in
+  let reply_markup = reply_markup_option_to_yojson_l x.reply_markup in
+  build_assoc
+  [ business_connection_id
+  ; chat_id
+  ; message_thread_id
+  ; sticker
+  ; emoji
+  ; disable_notification
+  ; protect_content
+  ; allow_paid_broadcast
+  ; message_effect_id
+  ; reply_parameters
+  ; reply_markup
+  ]
+
+let get_sticker_set_to_yojson (x : get_sticker_set) : t =
+  let name = name2_to_yojson x.name in
+  build_assoc [ name ]
+
+let get_custom_emoji_stickers_to_yojson (x : get_custom_emoji_stickers) : t =
+  let custom_emoji_ids = custom_emoji_ids_to_yojson x.custom_emoji_ids in
+  build_assoc [ custom_emoji_ids ]
+
+let upload_sticker_file_to_yojson (x : upload_sticker_file) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let sticker = sticker3_to_yojson x.sticker in
+  let sticker_format = sticker_format_to_yojson x.sticker_format in
+  build_assoc
+  [ user_id
+  ; sticker
+  ; sticker_format
+  ]
+
+let create_new_sticker_set_to_yojson (x : create_new_sticker_set) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let name = name2_to_yojson x.name in
+  let title = title_to_yojson x.title in
+  let stickers = stickers_to_yojson x.stickers in
+  let sticker_type = sticker_type_to_yojson x.sticker_type in
+  let needs_repainting = needs_repainting_to_yojson x.needs_repainting in
+  build_assoc
+  [ user_id
+  ; name
+  ; title
+  ; stickers
+  ; sticker_type
+  ; needs_repainting
+  ]
+
+let add_sticker_to_set_to_yojson (x : add_sticker_to_set) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let name = name2_to_yojson x.name in
+  let sticker = sticker2_to_yojson x.sticker in
+  build_assoc
+  [ user_id
+  ; name
+  ; sticker
+  ]
+
+let set_sticker_position_in_set_to_yojson (x : set_sticker_position_in_set) : t =
+  let sticker = sticker3_to_yojson x.sticker in
+  let position = position_to_yojson x.position in
+  build_assoc [ sticker; position ]
+
+let delete_sticker_from_set_to_yojson (x : delete_sticker_from_set) : t =
+  let sticker = sticker3_to_yojson x.sticker in
+  build_assoc [ sticker ]
+
+let replace_sticker_in_set_to_yojson (x : replace_sticker_in_set) : t =
+  let user_id = user_id_to_yojson x.user_id in
+  let name = name2_to_yojson x.name in
+  let old_sticker = old_sticker_to_yojson x.old_sticker in
+  let sticker = sticker2_to_yojson x.sticker in
+  build_assoc
+  [ user_id
+  ; name
+  ; old_sticker
+  ; sticker
+  ]
+
+let set_sticker_emoji_list_to_yojson (x : set_sticker_emoji_list) : t =
+  let sticker = sticker3_to_yojson x.sticker in
+  let emoji_list = emoji_list_to_yojson x.emoji_list in
+  build_assoc [ sticker; emoji_list ]
+
+let set_sticker_keywords_to_yojson (x : set_sticker_keywords) : t =
+  let sticker = sticker3_to_yojson x.sticker in
+  let emoji_list = keywords_to_yojson x.keywords in
+  build_assoc [ sticker; emoji_list ]
+
+let set_sticker_mask_position_to_yojson (x : set_sticker_mask_position) : t =
+  let sticker = sticker3_to_yojson x.sticker in
+  let mask_position = mask_position_to_yojson x.mask_position in
+  build_assoc [ sticker; mask_position ]
+
+let set_sticker_set_title_to_yojson (x : set_sticker_set_title) : t =
+  let name = name2_to_yojson x.name in
+  let title = title_to_yojson x.title in
+  build_assoc [ name; title ]
+
+let set_sticker_set_thumbnail_to_yojson (x : set_sticker_set_thumbnail) : t =
+  let name = name2_to_yojson x.name in
+  let user_id = user_id_to_yojson x.user_id in
+  let thumbnail = thumbnail_option_to_yojson_l x.thumbnail in
+  let format = format_to_yojson x.format in
+  build_assoc
+  [ name
+  ; user_id
+  ; thumbnail
+  ; format
+  ]
+
+let set_custom_emoji_sticker_set_thumbnail_to_yojson (x : set_custom_emoji_sticker_set_thumbnail) : t =
+  let name = name2_to_yojson x.name in
+  let custom_emoji_id = custom_emoji_id_to_yojson x.custom_emoji_id in
+  build_assoc [ name; custom_emoji_id ]
+
+let delete_sticker_set_to_yojson (x : delete_sticker_set) : t =
+  let name = name2_to_yojson x.name in
+  build_assoc [ name ]

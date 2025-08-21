@@ -3115,3 +3115,185 @@ let input_profile_photo_to_yojson (x : input_profile_photo) : Yojson.Safe.t =
   match x with
   | InputProfilePhotoStatic(v) -> input_profile_photo_static_to_yojson v
   | InputProfilePhotoAnimated(v) -> input_profile_photo_animated_to_yojson v
+
+let accepted_gift_types_to_yojson (x : accepted_gift_types) : Yojson.Safe.t =
+  let unlimited_gifts = [("unlimited_gifts", `Bool x.unlimited_gifts)] in
+  let limited_gifts = [("limited_gifts", `Bool x.limited_gifts)] in
+  let unique_gifts = [("unique_gifts", `Bool x.unique_gifts)] in
+  let premium_subscription = [("premium_subscription", `Bool x.premium_subscription)] in
+  assoc_to_json
+  [ unlimited_gifts
+  ; limited_gifts
+  ; unique_gifts
+  ; premium_subscription
+  ]
+
+let input_story_content_photo_to_yojson (x : input_story_content_photo) : Yojson.Safe.t =
+  let _type = [("type", `String "photo")] in
+  let photo = [("photo", `String x.photo)] in
+  assoc_to_json [ _type; photo ]
+
+let input_story_content_video_to_yojson (x : input_story_content_video) : Yojson.Safe.t =
+  let _type = [("type", `String "video")] in
+  let video = [("video", `String x.video)] in
+  let duration = 
+    match x.duration with
+    | None -> []
+    | Some(v) -> [("duration", `Float v)]
+  in
+  let cover_frame_timestamp =
+    match x.cover_frame_timestamp with
+    | None -> []
+    | Some(v) -> [("cover_frame_timestamp", `Float v)]
+  in
+  let is_animation =
+    match x.is_animation with
+    | None -> []
+    | Some(v) -> [("is_animation", `Bool v)]
+  in
+  assoc_to_json
+  [ _type
+  ; video
+  ; duration
+  ; cover_frame_timestamp
+  ; is_animation
+  ]
+
+let input_story_content_to_yojson (x : input_story_content) : Yojson.Safe.t =
+  match x with
+  | InputStoryContentPhoto(v) -> input_story_content_photo_to_yojson v
+  | InputStoryContentVideo(v) -> input_story_content_video_to_yojson v
+
+let story_area_position_to_yojson (x : story_area_position) : Yojson.Safe.t =
+  let x_percentage = [("x_percentage", `Float x.x_percentage)] in
+  let y_percentage = [("y_percentage", `Float x.y_percentage)] in
+  let width_percentage = [("width_percentage", `Float x.width_percentage)] in
+  let height_percentage = [("height_percentage", `Float x.height_percentage)] in
+  let rotation_angle = [("rotation_angle", `Float x.rotation_angle)] in
+  let corner_radius_percentage = [("corner_radius_percentage", `Float x.corner_radius_percentage)] in
+  assoc_to_json
+  [ x_percentage
+  ; y_percentage
+  ; width_percentage
+  ; height_percentage
+  ; rotation_angle
+  ; corner_radius_percentage
+  ]
+
+let location_address_to_yojson (x : location_address) : Yojson.Safe.t =
+  let wrap n v =
+    match v with
+    | None -> []
+    | Some(v') -> [(n, `String v')]
+  in
+  let country_code = [("country_code", `String x.country_code)] in
+  let state = wrap "state" x.state in
+  let city = wrap "city" x.city in
+  let street = wrap "street" x.street in
+  assoc_to_json
+  [ country_code
+  ; state
+  ; city
+  ; street
+  ]
+
+let story_area_type_location_to_yojson (x : story_area_type_location) : Yojson.Safe.t =
+  let _type = [("type", `String "location")] in
+  let latitude = [("latitude", `Float x.latitude)] in
+  let longtitude = [("longtitude", `Float x.longtitude)] in
+  let address = [("address", location_address_to_yojson x.address)] in
+  assoc_to_json
+  [ _type
+  ; latitude
+  ; longtitude
+  ; address
+  ]
+
+let story_area_type_suggested_reaction_to_yojson (x : story_area_type_suggested_reaction) : Yojson.Safe.t =
+  let _type = [("type", `String "suggested_reaction")] in
+  let reaction_type = [("reaction_type", reaction_type_to_yojson x.reaction_type)] in
+  let is_dark =
+    match x.is_dark with
+    | None -> []
+    | Some(v) -> [("is_dark", `Bool v)]
+  in
+  let is_flipped =
+    match x.is_flipped with
+    | None -> []
+    | Some(v) -> [("is_flipped", `Bool v)]
+  in
+  assoc_to_json
+  [ _type
+  ; reaction_type
+  ; is_dark
+  ; is_flipped
+  ]
+
+let story_area_type_link_to_yojson (x : story_area_type_link) : Yojson.Safe.t =
+  let _type = [("type", `String "link")] in
+  let url = [("url", `String x.url)] in
+  assoc_to_json [ _type; url ]
+
+let story_area_type_weather_to_yojson (x : story_area_type_weather) : Yojson.Safe.t =
+  let _type = [("type", `String "weather")] in
+  let temperature = [("temperature", `Float x.temperature)] in
+  let emoji = [("emoji", `String x.emoji)] in
+  let background_color = [("background_color", `Int x.background_color)] in
+  assoc_to_json
+  [ _type
+  ; temperature
+  ; emoji
+  ; background_color
+  ]
+
+let story_area_type_unique_gift_to_yojson (x : story_area_type_unique_gift) : Yojson.Safe.t =
+  let _type = [("type", `String "unique_gift")] in
+  let name = [("name", `String x.name)] in
+  assoc_to_json [ _type; name ]
+
+let story_area_type_to_yojson (x : story_area_type) : Yojson.Safe.t =
+  match x with
+  | StoryAreaTypeLocation(v) -> story_area_type_location_to_yojson v
+  | StoryAreaTypeSuggestedReaction(v) -> story_area_type_suggested_reaction_to_yojson v
+  | StoryAreaTypeLink(v) -> story_area_type_link_to_yojson v
+  | StoryAreaTypeWeather(v) -> story_area_type_weather_to_yojson v
+  | StoryAreaTypeUniqueGift(v) -> story_area_type_unique_gift_to_yojson v
+
+let story_area_to_yojson (x : story_area) : Yojson.Safe.t =
+  let position = [("position", story_area_position_to_yojson x.position)] in
+  let _type = [("type", story_area_type_to_yojson x._type)] in
+  assoc_to_json [ position; _type ]
+
+let mask_position_to_yojson (x : mask_position) : Yojson.Safe.t =
+  let point = [("point", `String x.point)] in
+  let x_shift = [("x_shift", `Float x.x_shift)] in
+  let y_shift = [("y_shift", `Float x.y_shift)] in
+  let scale = [("scale", `Float x.scale)] in
+  assoc_to_json
+  [ point
+  ; x_shift
+  ; y_shift
+  ; scale
+  ]
+
+let input_sticker_to_yojson (x : input_sticker) : Yojson.Safe.t =
+  let sticker = [("sticker", `String x.sticker)] in
+  let format = [("format", `String x.format)] in
+  let emoji_list = [("emoji_list", `List (List.map (fun v -> `String v) x.emoji_list))] in
+  let mask_position =
+    match x.mask_position with
+    | None -> []
+    | Some(v) -> [("mask_position", mask_position_to_yojson v)]
+  in
+  let keywords =
+    match x.keywords with
+    | None -> []
+    | Some(v) -> [("keywords", `List (List.map (fun x -> `String x) v))]
+  in
+  assoc_to_json
+  [ sticker
+  ; format
+  ; emoji_list
+  ; mask_position
+  ; keywords
+  ]
