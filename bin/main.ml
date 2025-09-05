@@ -28,6 +28,7 @@ end
 
 module PairIIIMap = Map.Make(PairIII)
 module PairIIMap  = Map.Make(PairII)
+module IMap       = Map.Make(BatInt64)
 
 let captcha_answers = ref PairIIIMap.empty
 let captcha_timeouts = ref PairIIIMap.empty
@@ -254,6 +255,7 @@ let () =
         let combo = (chat_id, user_id, id) in
         combo
       in
+      (*
       let add_unverified_user () =
         let combo =
           let chat_id = m.chat.id in
@@ -268,6 +270,7 @@ let () =
           let new_map = PairIIMap.add combo [] cur_map in
           unverified_users_messages := new_map
       in
+      *)
       let add_new_answer () =
         let combo = get_combo () in
         let cur_map = !captcha_answers in
@@ -315,7 +318,7 @@ let () =
         Lwt_timeout.start timeout_task
       in
       add_new_answer ();
-      add_unverified_user ();
+      (* add_unverified_user (); *)
       add_new_timer ();
       return ()
     (* Lwt_io.printf "%s" (show_return_type res) *)
@@ -337,6 +340,12 @@ let () =
   let callback_query_received (update : update) f =
     match update.callback_query with
     | Some(cbq) -> f cbq
+    | None -> return ()
+  in
+
+  let any_message_from_user (update : update) f =
+    match update.message with
+    | Some(m) -> f m
     | None -> return ()
   in
 
@@ -397,8 +406,7 @@ let () =
           SendMessage.(
             send_message_to_chat_of_instance chat_id
             |> with_text "Failure!"
-          )
-          |> l_ignore
+          ) |> l_ignore
         )
       | None ->
         Bot.send_message
@@ -411,10 +419,31 @@ let () =
     | InaccessibleMessage(_) -> return ()
   in
 
+  let record_unverified_messages (m : message) =
+    let f () =
+      let (>>=) = BatOption.bind in
+      m.from >>= fun u ->
+      let user_id = u.id in
+      let chat_id = m.chat.id in
+      let cur_map = !unverified_users_messages in
+      let user_messages = PairIIMap.find_opt (chat_id, user_id) cur_map in
+      let new_user_messages =
+        match user_messages with
+        | Some(l) -> m :: l
+        | None -> []
+      in
+      let new_map = PairIIMap.add (chat_id, user_id) new_user_messages cur_map in
+      unverified_users_messages := new_map;
+      BatOption.some ()
+    in
+    f () |> ignore |> return
+  in
+
   Bot.switch_debug_on ();
   let captcha_bot (upd : Telegram_types.update) =
     is_new_users_joined upd (captcha_new_joined_users) |> ignore;
     callback_query_received upd (respond_to_captcha) |> ignore;
+    any_message_from_user upd (record_unverified_messages) |> ignore;
     match upd.message with
     | Some(message) -> 
       if start_command_message message then print_start_help upd |> l_ignore else

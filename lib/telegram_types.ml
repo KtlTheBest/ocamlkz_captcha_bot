@@ -19,6 +19,19 @@ type chat_type =
   | Channel
 [@@deriving show]
 
+type webhook_info = {
+  url : string;
+  has_custom_certificate : bool;
+  pending_update_count : int;
+  ip_address : string option;
+  last_error_date : int option;
+  last_error_message : string option;
+  last_synchronization_error_date : int option;
+  max_connections : int option;
+  allowed_updates : string list option;
+}
+[@@deriving show]
+
 type user = {
   id: int64;
   is_bot: bool;

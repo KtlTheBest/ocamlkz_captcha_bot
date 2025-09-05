@@ -555,3 +555,6 @@ type set_custom_emoji_sticker_set_thumbnail = true_res
 
 type delete_sticker_set = true_res
 [@@deriving show]
+
+type delete_webhook = true_res
+[@@deriving show]

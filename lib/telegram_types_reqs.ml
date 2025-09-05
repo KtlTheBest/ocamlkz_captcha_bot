@@ -1126,3 +1126,8 @@ type delete_sticker_set = {
   name: string
 }
 [@@deriving show]
+
+type delete_webhook = {
+  drop_pending_updates : bool option;
+}
+[@@deriving show]

@@ -3297,3 +3297,31 @@ let input_sticker_to_yojson (x : input_sticker) : Yojson.Safe.t =
   ; mask_position
   ; keywords
   ]
+
+let yojson_to_webhook_info (j : Yojson.Safe.t) : webhook_info =
+  let open Yojson.Safe.Util in
+  let to_list_option (v : Yojson.Safe.t) =
+    match v with
+    | `Null -> None
+    | `List(l) -> Some(l)
+    | _ -> None
+  in
+  let url = j |> member "url" |> to_string in
+  let has_custom_certificate = j |> member "has_custom_certificate" |> to_bool in
+  let pending_update_count = j |> member "pending_update_count" |> to_int in
+  let ip_address = j |> member "ip_address" |> to_string_option in
+  let last_error_date = j |> member "last_error_date" |> to_int_option in
+  let last_error_message = j |> member "last_error_message" |> to_string_option in
+  let last_synchronization_error_date = j |> member "last_synchronization_error_date" |> to_int_option in
+  let max_connections = j |> member "max_connections" |> to_int_option in
+  let allowed_updates = j |> member "allowed_updates" |> to_list_option |> BatOption.map (List.map to_string) in
+  { url
+  ; has_custom_certificate
+  ; pending_update_count
+  ; ip_address
+  ; last_error_date
+  ; last_error_message
+  ; last_synchronization_error_date
+  ; max_connections
+  ; allowed_updates
+  }

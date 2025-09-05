@@ -334,6 +334,7 @@ let keywords_to_yojson x = string_list_to_yojson_l "keywords" x
 let mask_position_to_yojson x = mask_position_t_option_to_yojson_l "mask_position" x
 let format_to_yojson x = string_to_yojson_l "format" x
 let custom_emoji_id_to_yojson x = string_option_to_yojson_l "custom_emoji_id" x
+let drop_pending_updates_to_yojson x = bool_option_to_yojson_l "drop_pending_updates" x
 
 let send_message_to_yojson (sm: send_message) : t =
   let business_connection_id = business_connection_id_option_to_yojson_l sm.business_connection_id in
@@ -1869,3 +1870,7 @@ let set_custom_emoji_sticker_set_thumbnail_to_yojson (x : set_custom_emoji_stick
 let delete_sticker_set_to_yojson (x : delete_sticker_set) : t =
   let name = name2_to_yojson x.name in
   build_assoc [ name ]
+
+let delete_webhook_to_yojson (x : delete_webhook) : t =
+  let drop_pending_updates = drop_pending_updates_to_yojson x.drop_pending_updates in
+  build_assoc [ drop_pending_updates ]
