@@ -224,7 +224,8 @@ let () =
       let ans2 = create_other_answer [a; ans1] in
       let arr = [a; ans1; ans2] in
       let shuffled_arr = BatList.shuffle arr in
-      (Printf.sprintf "User %s, please answer the following captcha within 5 minutes:\n\n%s" mention q), shuffled_arr, a
+      let timeout = 60 in
+      (Printf.sprintf "User %s, please answer the following captcha within %d seconds:\n\n%s" mention timeout q), shuffled_arr, a
     in
     let (q, opts, a) = captcha_question () in
     let keyboard =

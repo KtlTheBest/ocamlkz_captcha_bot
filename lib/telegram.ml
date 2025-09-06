@@ -373,7 +373,7 @@ module LwtHttpBot(Token: TokenT) = struct
     let getUpdates_string = api_method "getUpdates" in
     let open Lwt in
     Lwt_io.printf "DEBUG: last_update_id: %d\n" !last_update_id >>>
-    let args = [("offset", string_of_int !last_update_id)] in
+    let args = [("offset", string_of_int (!last_update_id + 1))] in
     make_get_basic_with_args getUpdates_string args >>= fun v ->
     let res = updates_raw_body_to_yojson v in
     Lwt.return res
@@ -383,8 +383,10 @@ module LwtHttpBot(Token: TokenT) = struct
     let open Telegram_types in
     Lwt_io.printl "Executing poller" >>>
     getUpdates () >>= fun updates_json ->
-    Lwt_io.printf "The update: %s" (Yojson.Safe.pretty_to_string updates_json) >>>
-    let updates_opt = Telegram_types_utils.yojson_to_message_update_from_results updates_json in
+    Lwt_io.printf "The update: %s\n" (Yojson.Safe.pretty_to_string updates_json) >>>
+    let updates_opt = 
+      Telegram_types_utils.yojson_to_message_update_from_results updates_json 
+    in
     match updates_opt with
     | None -> Lwt_unix.sleep 5.0 >>= poller f
     | Some(updates) ->
@@ -392,9 +394,9 @@ module LwtHttpBot(Token: TokenT) = struct
       let extract_update_id ({ update_id; _ }: update) = update_id in
       updates
       |> List.map extract_update_id
-      |> List.fold_left max (!last_update_id + 1)
+      |> List.fold_left max (!last_update_id)
     in
-    last_update_id := highest_update_id + 1;
+    last_update_id := highest_update_id;
     updates
     |> List.map f
     |> List.cons (Lwt_unix.sleep 3.0)
@@ -464,10 +466,13 @@ module LwtHttpBot(Token: TokenT) = struct
     let post_body =
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
-        to_string @@ Telegram_types_utils.send_message_request_to_yojson req
+        to_string @@ Telegram_types_reqs_yojson.send_message_to_yojson req
       )
     in
-    Lwt_io.printf "Sending data to %s:\n%s\n" "sendMessage" (Yojson.Safe.pretty_to_string @@ Telegram_types_utils.send_message_request_to_yojson req) >>= fun _ ->
+    Lwt_io.printf 
+      "Sending data to %s:\n%s\n" 
+        "sendMessage" 
+        (Yojson.Safe.pretty_to_string @@ Telegram_types_reqs_yojson.send_message_to_yojson req) >>= fun _ ->
     Client.post (Uri.of_string sendMessageToUser_string)
       ~headers:json_header
       ~body:post_body >>= fun (resp, body) ->
@@ -490,7 +495,7 @@ module LwtHttpBot(Token: TokenT) = struct
     let post_body =
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
-        to_string @@ Telegram_types_utils.delete_message_request_to_yojson req
+        to_string @@ Telegram_types_reqs_yojson.delete_message_to_yojson req
       )
     in
     Client.post (Uri.of_string deleteMessage_string)
@@ -508,16 +513,16 @@ module LwtHttpBot(Token: TokenT) = struct
     yojson_to_true_res body
 
   let ban_chat_member (req : RQ.ban_chat_member) : RS.ban_chat_member t =
-    let deleteMessage_string = api_method "banChatMember" in
+    let ban_string = api_method "banChatMember" in
     let open BatPervasives in
     let open Lwt in
     let post_body =
       Cohttp_lwt.Body.of_string (
         let open Yojson.Safe in
-        to_string @@ Telegram_types_utils.ban_chat_member_request_to_yojson req
+        to_string @@ Telegram_types_reqs_yojson.ban_chat_member_to_yojson req
       )
     in
-    Client.post (Uri.of_string deleteMessage_string)
+    Client.post (Uri.of_string ban_string)
       ~headers:json_header
       ~body:post_body >>= fun (resp, body) ->
     let code = resp |> Response.status |> Code.code_of_status in
