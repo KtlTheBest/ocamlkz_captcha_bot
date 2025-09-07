@@ -2,4 +2,5 @@
  (name ocamlkz_captcha_bot)
  (preprocess (pps ppx_deriving.show))
  (libraries cohttp-lwt-unix batteries yojson)
- (ocamlopt_flags "-g"))
+ (ocamlopt_flags "-g")
+ (ocamlc_flags "-g"))

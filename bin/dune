@@ -2,6 +2,7 @@
  (public_name ocamlkz_captcha_bot)
  (name main)
  (ocamlopt_flags "-g")
+ (ocamlc_flags "-g")
  (libraries ocamlkz_captcha_bot))
 
 (env

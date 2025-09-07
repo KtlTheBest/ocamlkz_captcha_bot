@@ -33,6 +33,16 @@ let string_res_of ok error result =
   | true -> String (BatOption.get result)
   | false -> Error (interpret_err error)
 
+type user_res =
+  | User of user
+  | Error of string
+[@@deriving show]
+
+let user_res_of ok error result : user_res =
+  match ok with
+  | true -> User (BatOption.get result)
+  | false -> Error (interpret_err error)
+
 type message_res =
   | Message of message
   | Error of string
@@ -167,6 +177,9 @@ type story_res =
 type sticker_set_res =
   | StickerSet of sticker_set
   | Error of string
+[@@deriving show]
+
+type get_me = user_res 
 [@@deriving show]
 
 type send_message = message_res

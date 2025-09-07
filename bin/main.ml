@@ -123,7 +123,7 @@ let () =
     Bot.send_message msg_req
   in
 
-  let captcha_single_new_user message (new_user : user) =
+  let captcha_single_new_user user_join_message (new_user : user) =
     let create_mention (new_user : user) =
       let open BatOption in
       let id = new_user.id in
@@ -240,18 +240,18 @@ let () =
     in
     Bot.send_message
     SendMessage.(
-      send_message_req_of message
+      send_message_req_of user_join_message
       |> with_text q
       |> as_markdownv2
       |> with_keyboard keyboard
-    ) >>= fun res ->
-    match res with
+    ) >>= fun quiz_message ->
+    match quiz_message with
     | Error _ -> return ()
-    | Message(m) ->
+    | Message(quiz_message') ->
       let get_combo () =
-        let id = m.message_id in
+        let id = quiz_message'.message_id in
         let user_id = new_user.id in
-        let chat = m.chat in
+        let chat = quiz_message'.chat in
         let chat_id = chat.id in
         let combo = (chat_id, user_id, id) in
         combo
@@ -284,30 +284,46 @@ let () =
           let message = Printf.sprintf "User %s has failed to accomplish the captcha within %d seconds, kicking the \"user\"" mention timeout in
           let send_req =
             SendMessage.(
-            send_message_to m.chat
+            send_message_to quiz_message'.chat
             |> with_text message
             |> as_markdownv2
             )
           in
           let shoot_requests () =
-            Bot.send_message send_req >>= fun _ ->
+            Bot.send_message send_req >>= fun (sent_message : RS.send_message)->
+            match sent_message with
+            | Error(x) -> Lwt_io.printf "[ERROR] Couldn't send a notification message: %s\n" x
+            | Message(sent_message') ->
             let ban_chat_member_req =
-              BanChatMember.(ban_chat_member_of_chat m.chat new_user)
+              BanChatMember.(ban_chat_member_of_chat quiz_message'.chat new_user)
             in
-            Bot.ban_chat_member ban_chat_member_req >>= fun _ ->
+            Bot.ban_chat_member ban_chat_member_req >>= fun banned_message ->
+            (match banned_message with
+            | Error(s) -> Lwt_io.printf "[ERROR] Couldn't ban a user: %s\n" s
+            | True ->
             let make_delete_request (msg : message) =
               DeleteMessage.delete_message_of_chat (msg.chat.id) (msg.message_id)
             in
             let cur_map = !unverified_users_messages in
-            let combo = (m.chat.id, new_user.id) in
+            let combo = (quiz_message'.chat.id, new_user.id) in
             let unverified_messages = PairIIMap.find_opt combo cur_map in
+            (
             match unverified_messages with
-            | None -> return ()
+            | None -> ()
             | Some(messages) ->
               List.map (fun x -> Bot.delete_message @@ make_delete_request x) messages |> ignore;
               let new_map = PairIIMap.remove combo cur_map in
               unverified_users_messages := new_map;
-              return ()
+              ()
+            )
+            ;
+            let delete_message_1 = make_delete_request quiz_message' in
+            let delete_message_2 = make_delete_request sent_message' in
+            let delete_message_3 = make_delete_request user_join_message in
+            List.map (Bot.delete_message) [ delete_message_1; delete_message_2; delete_message_3 ] |> ignore;
+            return ()
+            )
+            (* Take a short break of 5 sec and then delete bot messages *)
           in
           shoot_requests () |> ignore;
         in
@@ -347,6 +363,25 @@ let () =
   let any_message_from_user (update : update) f =
     match update.message with
     | Some(m) -> f m
+    | None -> return ()
+  in
+
+  let any_kick_messages_from_bot bot_id (update : update) f =
+    match update.message with
+    | Some(m) -> 
+      let from_user = m.from in
+      let left_chat_member = m.left_chat_member in
+      (match from_user with
+      | Some(from_user') ->
+        (match left_chat_member with
+        | Some(_) ->
+          (* check that we are the sender of the message *)
+          if from_user'.id = bot_id then
+            f m
+          else
+            return ()
+        | None -> return ())
+      | None -> return ())
     | None -> return ()
   in
 
@@ -440,11 +475,21 @@ let () =
     f () |> ignore |> return
   in
 
+  let delete_those_messages message =
+    let make_delete_request (msg : message) =
+      DeleteMessage.delete_message_of_chat (msg.chat.id) (msg.message_id)
+    in
+    let delete_request = make_delete_request message in
+    Bot.delete_message delete_request |> l_ignore
+  in
+
   Bot.switch_debug_on ();
-  let captcha_bot (upd : Telegram_types.update) =
+  let captcha_bot (bot_get_me : user) (upd : Telegram_types.update) =
+    let bot_id = bot_get_me.id in
     is_new_users_joined upd (captcha_new_joined_users) |> ignore;
     callback_query_received upd (respond_to_captcha) |> ignore;
     any_message_from_user upd (record_unverified_messages) |> ignore;
+    any_kick_messages_from_bot bot_id upd (delete_those_messages) |> ignore;
     match upd.message with
     | Some(message) -> 
       if start_command_message message then print_start_help upd |> l_ignore else
@@ -454,4 +499,4 @@ let () =
     | None ->
       Lwt_io.printf "Update:\n%s\n" (show_update upd)
   in
-  Bot.poll captcha_bot
+  Bot.poll_with_get_me captcha_bot

@@ -52,6 +52,27 @@ let user_to_yojson (u : user) =
   let added_to_attachement_menu = [("added_to_attachment_menu", `Bool u.added_to_attachement_menu)] in
   assoc_to_json [id; is_bot; first_name; last_name; username; is_premium; added_to_attachement_menu]
 
+let yojson_to_user (j : Yojson.Safe.t) : Telegram_types.user =
+  let open Yojson.Safe.Util in
+  let to_bool' x =
+    x |> to_bool_option |> BatOption.default false
+  in
+  let id = j |> member "id" |> to_int64 in
+  let is_bot = j |> member "is_bot" |> to_bool in
+  let first_name = j |> member "first_name" |> to_string in
+  let last_name = j |> member "last_name" |> to_string_option in
+  let username = j |> member "user_name" |> to_string_option in
+  let is_premium = j |> member "is_premium" |> to_bool' in
+  let added_to_attachement_menu = j |> member "added_to_attachement_menu" |> to_bool' in
+  { id
+  ; is_bot
+  ; first_name
+  ; last_name
+  ; username
+  ; is_premium
+  ; added_to_attachement_menu
+  }
+
 let message_entity_to_yojson (x: message_entity) =
   let _type = [("type", message_entity_type_to_yojson x._type)] in
   let offset = [("offset", `Int x.offset)] in
@@ -1869,6 +1890,33 @@ let to_inline_keyboard_markup_option j : inline_keyboard_markup option =
   Some( { inline_keyboard = inline_keyboard } )
   (* | _ -> failwith @@ Printf.sprintf "to_inline_keyboard_markup_option: do not know what to do: %s" (Yojson.Safe.pretty_to_string j) *)
 
+let to_user_option (j : Yojson.Safe.t) : user option =
+  match j with
+  | `Null -> None
+  | _ ->
+  let open Yojson.Safe.Util in
+  let to_bool' x =
+    x |> to_bool_option |> BatOption.default false
+  in
+  Printf.printf "DEBUG:\n%s\n" (Yojson.Safe.pretty_to_string j);
+  Printf.printf "DEBUG: trying to get the id of the user\n";
+  let id = j |> member "id" |> to_int64 in
+  Printf.printf "DEBUG: Got the id of the user: %s\n" (BatInt64.to_string id);
+  let is_bot = j |> member "is_bot" |> to_bool in
+  let first_name = j |> member "first_name" |> to_string in
+  let last_name = j |> member "last_name" |> to_string_option in
+  let username = j |> member "user_name" |> to_string_option in
+  let is_premium = j |> member "is_premium" |> to_bool' in
+  let added_to_attachement_menu = j |> member "added_to_attachement_menu" |> to_bool' in
+  Some({ id
+  ; is_bot
+  ; first_name
+  ; last_name
+  ; username
+  ; is_premium
+  ; added_to_attachement_menu
+  })
+
 let rec to_message_option j : message option =
   let open Yojson.Safe.Util in
   let open BatOption in
@@ -3325,3 +3373,8 @@ let yojson_to_webhook_info (j : Yojson.Safe.t) : webhook_info =
   ; max_connections
   ; allowed_updates
   }
+
+let user_res_of ok error result : Telegram_types_resps.user_res =
+  match ok with
+  | true -> User(yojson_to_user @@ BatOption.get result)
+  | false -> Error(error)
