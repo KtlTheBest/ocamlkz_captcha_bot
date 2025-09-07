@@ -348,9 +348,12 @@ let () =
       List.map (captcha_single_new_user message) new_users |> ignore |> return
   in
 
-  let is_new_users_joined (update : update) f =
+  let is_new_users_joined bot_id (update : update) f =
     match update.message with
-    | Some(message) -> f message message.new_chat_members
+    | Some(message) -> 
+      let new_chat_members = message.new_chat_members in
+      let new_chat_members_without_bot_itself = List.filter (fun (x : user) -> x.id <> bot_id) new_chat_members in
+      f message new_chat_members_without_bot_itself
     | None -> return ()
   in
 
@@ -486,7 +489,7 @@ let () =
   Bot.switch_debug_on ();
   let captcha_bot (bot_get_me : user) (upd : Telegram_types.update) =
     let bot_id = bot_get_me.id in
-    is_new_users_joined upd (captcha_new_joined_users) |> ignore;
+    is_new_users_joined bot_id upd (captcha_new_joined_users) |> ignore;
     callback_query_received upd (respond_to_captcha) |> ignore;
     any_message_from_user upd (record_unverified_messages) |> ignore;
     any_kick_messages_from_bot bot_id upd (delete_those_messages) |> ignore;
