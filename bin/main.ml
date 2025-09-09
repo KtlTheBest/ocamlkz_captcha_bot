@@ -300,7 +300,8 @@ let () =
             Bot.ban_chat_member ban_chat_member_req >>= fun banned_message ->
             (match banned_message with
             | Error(s) -> Lwt_io.printf "[ERROR] Couldn't ban a user: %s\n" s
-            | True ->
+            | True -> return ()) |> l_ignore |> ignore;
+
             let make_delete_request (msg : message) =
               DeleteMessage.delete_message_of_chat (msg.chat.id) (msg.message_id)
             in
@@ -322,7 +323,6 @@ let () =
             let delete_message_3 = make_delete_request user_join_message in
             List.map (Bot.delete_message) [ delete_message_1; delete_message_2; delete_message_3 ] |> ignore;
             return ()
-            )
             (* Take a short break of 5 sec and then delete bot messages *)
           in
           shoot_requests () |> ignore;
